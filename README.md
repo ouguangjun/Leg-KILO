@@ -1,5 +1,7 @@
 # Leg-KILO: Robust Kinematic-Inertial-Lidar Odometry for Dynamic Legged Robots
 
+Currently, this version is only tested in the legkilo-dataset; a lighter and more accurate version, Leg-KILO 2.0, will be released before 2025.
+
 <p align='center'>
     <img src="https://github.com/ouguangjun/Leg-KILO/blob/main/figure/overview0305.jpg" alt="drawing" width="600"/>
 </p>
