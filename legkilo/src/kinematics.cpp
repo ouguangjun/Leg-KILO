@@ -338,8 +338,8 @@ bool Kinematic::getInfoFromMsg(const unitree_legged_msgs::HighState::ConstPtr &m
         
         if (msg->imu.accelerometer[2] == 0) return false;
 
-        if(curMsg.imu.accelerometer[0] == msg->imu.accelerometer[0]) return false;
-        curMsg = *msg;
+        // if(curMsg.imu.accelerometer[0] == msg->imu.accelerometer[0]) return false;
+        // curMsg = *msg;
 
         Eigen::Vector3d euler(msg->imu.rpy[2],msg->imu.rpy[1],msg->imu.rpy[0]);  // 对应 z y x
         root_rot_mat = Eigen::AngleAxisd(euler[0], Eigen::Vector3d::UnitZ()) *

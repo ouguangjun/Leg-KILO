@@ -39,7 +39,7 @@ struct state_eskf
 #define MEAS_SIZE 34   
 
 #define PROCESS_NOISE_b_a 0.001    
-#define PROCESS_NOISE_b_w 0.0001    
+#define PROCESS_NOISE_b_w 0.000000000000001    
 #define PROCESS_NOISE_IMU_a 0.001    
 #define PROCESS_NOISE_IMU_w 0.001    
 #define PROCESS_NOISE_PFOOT 0.01    
@@ -48,7 +48,7 @@ struct state_eskf
 #define MEASURE_NOISE_IMU_w 0.001     
 #define MEASURE_NOISE_P 0.001   
 #define MEASURE_NOISE_V  0.1  
-#define MEASURE_NOISE_Pi_z 0.001   
+#define MEASURE_NOISE_Pi_z 0.05   
 
 class Kinematic{
     public:

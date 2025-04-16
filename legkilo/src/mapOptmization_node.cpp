@@ -481,7 +481,7 @@ public:
                 std::vector<float> pointSearchSqDis;
                 PointVector search_result;
 
-                kdtree_plane_ptr->Nearest_Search(footPosOri[i], 15, search_result, pointSearchSqDis);
+                kdtree_plane_ptr->Nearest_Search(footPosOri[i], 20, search_result, pointSearchSqDis);
 
      
 
@@ -505,7 +505,7 @@ public:
                 footPosMeas[i].y = footPosOri[i].y - r*pca_result(1);
                 footPosMeas[i].z = footPosOri[i].z - r*pca_result(2);
 
-                if(abs(footPosMeas[i].z -mean.z) > 0.03 ) continue;
+                if(abs(footPosMeas[i].z -mean.z) > 0.01 ) continue;
 
                 ESKF.CHDvalue[i] = footPosMeas[i].z;
                 ESKF.CHDcheck[i] = 1;
@@ -2097,8 +2097,8 @@ public:
 
     void saveKeyFramesAndFactor()
     {
-        if (saveFrame() == false)
-             return;
+        // if (saveFrame() == false)
+        //      return;
         // static int coutnum = 0;
         // coutnum++;
         // if(!(coutnum % cutMode == 0)) return;

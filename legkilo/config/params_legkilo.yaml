@@ -9,10 +9,10 @@ lio_sam:
   gpsTopic: "odometry/gpsz"                   # (not used) GPS odometry topic from navsat, see module_navsat.launch file
 
   #save path
-  savePath: "/home/jason/KILO_2/xxxxxxxxxxxx.csv"
+  savePath: "/home/jason/KILO_2/222.csv"
 
   #legkilo
-  maxLinearVel: 4
+  maxLinearVel: 10
   maxAngularVel: 6.28
   legOffsetX: 0.1881
   legOffsetY: 0.04675
@@ -51,7 +51,7 @@ lio_sam:
   N_SCAN: 16                               # number of lidar channel (i.e., 16, 32, 64, 128)
   Horizon_SCAN: 1800                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048)
   downsampleRate: 1                           # default: 1. Downsample your data if too many points. i.e., 16 = 64 / 4, 16 = 16 / 1
-  lidarMinRange:    2                      # default: 1.0, minimum lidar range to be used
+  lidarMinRange:    1                     # default: 1.0, minimum lidar range to be used
   lidarMaxRange: 100                      # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings (not used)
@@ -79,7 +79,7 @@ lio_sam:
   rotation_tollerance: 1000                     # radians
 
   # CPU Params
-  numberOfCores: 4                              # number of cores for mapping optimization
+  numberOfCores: 6                              # number of cores for mapping optimization
   mappingProcessInterval: 0                  # seconds, regulate mapping frequency
 
   # Surrounding map
