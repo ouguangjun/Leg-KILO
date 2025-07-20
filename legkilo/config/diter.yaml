@@ -7,7 +7,7 @@ kinematic_topic: /agent1/high_state
 # KI Options
 only_imu_use: false # True: use IMU from <sensor_msgs::Imu>, without kinematics
                                           # False: use IMU and Kin. from <unitree_legged_msgs/HighState>
-redundancy: false # set true for legkilo dataset 
+redundancy: true # set true for legkilo dataset 
                                      # (imu/kin publish freq is 500 hz but update freq is only 50 hz )
 
 # Initialization
@@ -33,7 +33,7 @@ max_layer: 2
 voxel_size: 0.5
 min_eigen_value: 0.01
 sigma_num: 3
-beam_err: 0.4
+beam_err: 0.2
 dept_err: 0.04
 layer_init_num: [5, 5, 5, 5, 5]
 max_points_num: 50
@@ -68,7 +68,7 @@ imu_gyr_meas_noise: 0.01
 kin_meas_noise: 0.1
 chd_meas_noise: 0.1
 contact_meas_noise: 0.001
-lidar_point_meas_ratio: 1
+lidar_point_meas_ratio: 10
 
 
 
