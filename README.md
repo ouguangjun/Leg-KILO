@@ -17,6 +17,10 @@ Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state K
 - **Extensive Validation**  
   Tested on both self‑collected and public datasets, and validated on Unitree Go1 and Go2 robots(with more datasets under continuous testing). 
 
+<p align='center'>
+    <img src="https://github.com/ouguangjun/kilo-dataset/blob/main/figure/map_dog.jpg" alt="drawing" width="500"/>
+</p>
+
 # News
 - **`2024.07.31`:** The code is released.
 - **`2024.07.20`:** The paper is accepted by RA-L 2024!
@@ -75,3 +79,21 @@ Thanks for their excellent open source work:
 - [SAD](https://github.com/gaoxiang12/slam_in_autonomous_driving)
 - [SVO](https://github.com/uzh-rpg/rpg_svo_pro_open)
 - [A1-QP-MPC-Controller](https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller).
+
+# Citation
+If you found this code/work to be useful in your own research, please considering citing the following information.
+
+```
+@ARTICLE{legkilo,
+  author={Ou, Guangjun and Li, Dong and Li, Hanmin},
+  journal={IEEE Robotics and Automation Letters}, 
+  title={Leg-KILO: Robust Kinematic-Inertial-Lidar Odometry for Dynamic Legged Robots}, 
+  year={2024},
+  volume={9},
+  number={10},
+  pages={8194-8201},
+  doi={10.1109/LRA.2024.3440730}}
+```
+
+# Contact
+If you have questions, make an issue or contact me at [ouguangjun98@gmail.com](ouguangjun98@gmail.com) 
