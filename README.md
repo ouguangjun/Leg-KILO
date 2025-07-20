@@ -1,98 +1,77 @@
-# Leg-KILO: Robust Kinematic-Inertial-Lidar Odometry for Dynamic Legged Robots
+# Leg-KILO 2.0
 
-**Currently, this version is only tested in the legkilo-dataset; a lighter and more accurate version, Leg-KILO 2.0, will be released before 2025.**
+Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state Kalman filter odometry system. Both the methodology and implementation differ from the original paper. The new version of Leg‑KILO is more efficient and lightweight. Key features include:
 
-<p align='center'>
-    <img src="https://github.com/ouguangjun/Leg-KILO/blob/main/figure/overview0305.jpg" alt="drawing" width="600"/>
-</p>
+- **Tight Sensor Fusion via ESKF**  
+  All sensors (LiDAR, IMU, and optional leg kinematics) are fused in a single Error‑State Kalman Filter.
 
-**Abstract** This paper presents  a robust multi-sensor fusion  framework, Leg-KILO (Kinematic-Inertial-Lidar Odometry). When lidar-based SLAM is applied to legged robots, high-dynamic motion (e.g., trot gait) introduces frequent foot impacts, leading to IMU degradation and lidar motion distortion. Direct use of IMU measurements can cause significant drift, especially in the z-axis direction. To address these limitations,  we tightly couple leg odometry, lidar odometry, and loop closure module based on graph optimization. For leg odometry, we propose a kinematic-inertial odometry using an on-manifold error-state Kalman filter, which incorporates the constraints from our proposed contact height detection to reduce height fluctuations. For lidar odometry,  we present an adaptive scan slicing and splicing method to alleviate the effects of high-dynamic motion. We further propose a robot-centric incremental mapping system that enhances map maintenance efficiency. Extensive experiments are conducted in both indoor and outdoor environments, showing that Leg-KILO has lower drift performance compared to other state-of-the-art lidar-based methods, especially during high-dynamic motion. To benefit the legged robot community, a lidar-inertial dataset containing leg kinematic data and the code  are released.
+- **Per-Point LiDAR Observations & IMU as Model Observation**  
+  Each LiDAR point is treated as an independent observation, and the IMU is used as a model observation—inspired by [Point‑LIO](https://github.com/hku-mars/Point-LIO). This makes the system more robust during high dynamic motion.
 
-<p align='center'>
-    <img src="https://github.com/ouguangjun/kilo-dataset/blob/main/figure/map_dog.jpg" alt="drawing" width="500"/>
-</p>
+- **Voxel Map Management**  
+  A voxel‑based map (based on [FAST‑LIVO2](https://github.com/hku-mars/FAST-LIVO2)) is used to organize and manage LiDAR map.
 
-<p align='center'>
-    <img src="https://github.com/ouguangjun/kilo-dataset/blob/main/figure/dog01.jpg" alt="drawing" width="200"/>
-    <img src="https://github.com/ouguangjun/kilo-dataset/blob/main/figure/dog02.jpg" alt="drawing" width="200"/>
-</p>
+- **High Throughput**  
+  Thanks to the ESKF and voxel map structure, single‑frame processing runs in **5–20 ms** .
+
+- **Extensive Validation**  
+  Tested on both self‑collected and public datasets, and validated on Unitree Go1 and Go2 robots(with more datasets under continuous testing). 
 
 # News
 - **`2024.07.31`:** The code is released.
 - **`2024.07.20`:** The paper is accepted by RA-L 2024!
-
-# Dataset
-Related datasets have been released in [link](https://github.com/ouguangjun/legkilo-dataset)
-
-# Video
-The related video can be watched on [Youtube](https://youtu.be/6O74De5BLeQ). 
-
-<a href="[https://youtu.be/HyLNq-98LRo](https://youtu.be/6O74De5BLeQ)" target="_blank"><img src="https://github.com/ouguangjun/Leg-KILO/blob/main/figure/youtube.png" 
-alt="leg-kilo" width="500"  /></a>
-
+- **`2025.07.20`:** Leg-KILO 2.0 is released.
 
 # Prerequisites
+
+Does not include any external optimization libraries; only requires common SLAM libraries such as Eigen and PCL.
+
 Currently our code is tested on 
 
 - Ubuntu 18.04
 - ROS melodic
-- gtsam 4.0.3
 - pcl 1.8
-- opencv 3.2
+- eigen 3
 - [unitree_legged_msgs](https://github.com/unitreerobotics/unitree_ros_to_real) (has included in the project)
+- glog
+- yaml-cpp
 
-You can refer to the configuration process of [LIOSAM](https://github.com/TixiaoShan/LIO-SAM).
+# Build
 
-We provide the ubuntu18.04 installation process, other versions may require some changes. We recommend that you install the ros desktop version, as this contains most of the required dependencies.
-
-Ros
-
-```
-apt-get update
-sudo apt-get install ros-melodic-desktop-full
-sudo rosdep init
-rosdep update
-echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-source ~/.bashrc
-```
-
-Gtsam
-
-```
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:borglab/gtsam-release-4.0
-sudo apt install libgtsam-dev libgtsam-unstable-dev
+```bash
+cd ~/legkilo_ws/src
+git clone https://github.com/ouguangjun/Leg-KILO.git
+cd ..
+catkin build  # catkin_make
 ```
 
 # Run
 
-```
-cd ~/legkilo_ws/src
-git clone https://github.com/ouguangjun/Leg-KILO.git
-cd ..
-catkin_make
-```
+## Leg-KILO Dataset
+Download our dataset from [link](https://github.com/ouguangjun/legkilo-dataset)
 
-Download the dataset from [link](https://github.com/ouguangjun/legkilo-dataset)
-
-```
+```bash
 source devel/setup.bash
-roslaunch legkilo run.launch
+roslaunch legkilo leg_fusion.launch
 rosbag play xxxx.bag
 ```
 
+## Diter++ Dataset
+
+Download [Diter++](https://www.google.com/url?q=https%3A%2F%2Fconstruction-robots.github.io%2Fpapers%2F66.pdf&sa=D&sntz=1&usg=AOvVaw2WSdHVs-7_zznSH2CZIeWH) dataset from [link](https://sites.google.com/view/diter-plusplus/home)
+
+```bash
+source devel/setup.bash
+roslaunch legkilo diter.launch
+rosbag play lawn_go2_lower_day.bag
+```
 
 # Acknowledgments
 
-Our project is developed on [LIOSAM](https://github.com/TixiaoShan/LIO-SAM) and retains the part of lidar optimization and loop closure detection , thanks very much to the authors for their excellent open source work. And also thanks to  [fast lio](https://github.com/hku-mars/FAST_LIO) for the ikd-tree,   and [A1-QP-MPC-Controller](https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller).
+Thanks for their excellent open source work:
 
-# License
-
-The code is under BSD 3-Clause License, the same as [LIOSAM](https://github.com/TixiaoShan/LIO-SAM). 
-
-# Todo list
-
-- [ ] With Docker configuration
-- [ ] Test on other ubuntu version
-- [ ] The matlab code for evaluation
-- [ ] Test on other open source legged robot's datasets
+- [Point‑LIO](https://github.com/hku-mars/Point-LIO)
+- [FAST‑LIVO2](https://github.com/hku-mars/FAST-LIVO2)
+- [SAD](https://github.com/gaoxiang12/slam_in_autonomous_driving)
+- [SVO](https://github.com/uzh-rpg/rpg_svo_pro_open)
+- [A1-QP-MPC-Controller](https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller).
