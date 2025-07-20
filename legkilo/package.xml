@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package>
+  <name>legkilo</name>
+  <version>0.0.0</version>
+
+  <description>
+
+    This is a modified and optimized version of the paper 
+    "Leg-KILO: Robust Kinematic-Inertial-Lidar Odometry for Dynamic Legged Robots"
+    https://doi.org/10.1109/LRA.2024.3440730
+
+  </description>
+
+  <maintainer email="ouguangjun98@gmail.com">Guangjun Ou</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>unitree_legged_msgs</build_depend>
+
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>unitree_legged_msgs</run_depend>
+
+  <export>
+  </export>
+</package>

@@ -1,0 +1,8 @@
+<launch>
+
+    <arg name="config_file" default="$(find legkilo)/config/leg_fusion.yaml"/>
+
+    <node pkg="legkilo" type="legkilo_node" name="legkilo_node" output="screen"
+        args="--config_file=$(arg config_file)"  launch-prefix="gdb -ex run --args"/>
+    launch-prefix="gdb -ex run --args"
+</launch>

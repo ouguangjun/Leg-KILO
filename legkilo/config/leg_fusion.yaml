@@ -1,0 +1,74 @@
+# Topics
+lidar_topic: /points_raw
+imu_topic: /imu_raw
+kinematic_topic: /high_state
+
+
+# KI Options
+only_imu_use: False # True: use IMU from <sensor_msgs::Imu>, without kinematics
+                                          # False: use IMU and Kin. from <unitree_legged_msgs/HighState>
+redundancy: true # set true for legkilo dataset 
+                                     # (imu/kin publish freq is 500 hz but update freq is only 50 hz )
+
+# Initialization
+init_time: 0.05
+gravity: 9.81                
+
+# Extrinsic (Transformation  from IMU coordinate  to Lidar coordinate)
+extrinsic_T: [0.0, 0.0, 0.0]
+extrinsic_R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+# Lidar Common
+lidar_type: 1   # Velodyne: 1
+time_scale: 1 # point sampling time scale relative to [sec]
+blind: 1.5
+filter_num: 3
+point_stamp_correct: true  # Set true for legkilo dataset
+                                                         # (lidar timestamp is the end time of scan)
+voxel_grid_resolution: 0.5
+
+# Voxel Map
+pub_plane_en: false
+max_layer: 2
+voxel_size: 0.5
+min_eigen_value: 0.01
+sigma_num: 3
+beam_err: 0.2
+dept_err: 0.04
+layer_init_num: [5, 5, 5, 5, 5]
+max_points_num: 50
+map_sliding_en: false
+half_map_size: 100
+sliding_thresh: 8
+
+# Kinematic/imu
+leg_offset_x: 0.1881
+leg_offset_y: 0.04675
+leg_calf_length: 0.213
+leg_thigh_length: 0.213
+leg_thigh_offset: 0.08
+contact_force_threshold_up: 220
+contact_force_threshold_down: 200
+
+satu_acc: 35
+satu_gyr: 30
+
+# Eskf cov/noise
+vel_process_cov: 20
+imu_acc_process_cov: 500
+imu_gyr_process_cov: 1000
+contact_process_cov: 20
+acc_bias_process_cov: 0.001
+gyr_bias_process_cov: 0.001
+kin_bias_process_cov: 0.001
+
+imu_acc_meas_noise: 0.1
+imu_acc_z_meas_noise: 1.0
+imu_gyr_meas_noise: 0.01
+kin_meas_noise: 0.1
+chd_meas_noise: 0.1
+contact_meas_noise: 0.001
+lidar_point_meas_ratio: 10
+
+
+
