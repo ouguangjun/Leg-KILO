@@ -1,7 +1,7 @@
 #include "options.h"
 
-namespace legkilo{
-namespace options{
+namespace legkilo {
+namespace options {
 
 bool kKinAndImuUse = false;
 bool kImuUse = false;
@@ -12,6 +12,5 @@ std::string kLidarTopic;
 std::string kKinematicTopic;
 std::string kImuTopic;
 
-
-} // options
-} // legkilo
+}  // namespace options
+}  // namespace legkilo

@@ -91,4 +91,4 @@ Eigen::Matrix<T, 3, 1> RotMtoEuler(const Eigen::Matrix<T, 3, 3> &rot) {
 }
 
 }  // namespace legkilo
-#endif //LEG_KILO_MATH_UTILS_H
+#endif  // LEG_KILO_MATH_UTILS_H

@@ -1,46 +1,42 @@
 #ifndef LEG_KILO_YAML_HELPER_H
 #define LEG_KILO_YAML_HELPER_H
 
+#include <glog/logging.h>
+#include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <yaml-cpp/yaml.h>
-#include <glog/logging.h>
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[";
     for (size_t i = 0; i < vec.size(); ++i) {
         os << vec[i];
-        if (i != vec.size() - 1)
-            os << ", ";
+        if (i != vec.size() - 1) os << ", ";
     }
     os << "]";
     return os;
 }
 
-namespace legkilo{
+namespace legkilo {
 
 class YamlHelper {
-public:
+   public:
     YamlHelper() = delete;
 
-    explicit YamlHelper(const std::string& config_file){
-        try{
+    explicit YamlHelper(const std::string& config_file) {
+        try {
             yaml_node_ = YAML::LoadFile(config_file);
-        } catch(const std::exception& e){
-            LOG(ERROR) << "Failed to open YAML file: " << config_file 
-                                       << "Errors: " << e.what(); 
+        } catch (const std::exception& e) {
+            LOG(ERROR) << "Failed to open YAML file: " << config_file << "Errors: " << e.what();
             throw std::runtime_error("Failed to open YAML file: " + config_file);
         }
     }
 
-    bool hasKey(const std::string& key) const{
-        return yaml_node_[key] ? true : false;
-    }
+    bool hasKey(const std::string& key) const { return yaml_node_[key] ? true : false; }
 
     template <typename T>
-    T get(const std::string& key) const{
+    T get(const std::string& key) const {
         if (!hasKey(key)) {
             LOG(ERROR) << "Failed to find key: " << key;
             throw std::runtime_error("Failed to find key: " + key);
@@ -50,12 +46,11 @@ public:
             LOG(INFO) << "YAML Key:  " << key << " = " << ret;
             return ret;
         } catch (const std::exception& e) {
-            LOG(ERROR) << "Failed to convert key " << key 
-                                       << "Errors: " << e.what();
+            LOG(ERROR) << "Failed to convert key " << key << "Errors: " << e.what();
             throw std::runtime_error("Failed to convert key " + key);
         }
     }
-    
+
     template <typename T>
     T get(const std::string& key, const T& default_value) const {
         if (!hasKey(key)) {
@@ -68,15 +63,14 @@ public:
             return ret;
         } catch (const std::exception& e) {
             LOG(WARNING) << "Failed to convert key " << key << ", returning default: " << default_value
-                        << ". Error: " << e.what();
+                         << ". Error: " << e.what();
             return default_value;
         }
     }
 
-
-private:
-    YAML::Node yaml_node_; 
+   private:
+    YAML::Node yaml_node_;
 };
 
-} //namespace legkilo
-#endif //LEG_KILO_YAML_HELPER_H
+}  // namespace legkilo
+#endif  // LEG_KILO_YAML_HELPER_H

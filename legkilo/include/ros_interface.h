@@ -1,53 +1,52 @@
 #ifndef LEG_KILO_ROS_INTERFACE_H
 #define LEG_KILO_ROS_INTERFACE_H
 
+#include <deque>
+#include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <deque>
-#include <mutex>
 #include <utility>
-#include <iomanip>
 
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/JointState.h>
-#include <unitree_legged_msgs/HighState.h>
+#include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <tf/transform_datatypes.h>
-#include <tf/transform_broadcaster.h>
-#include <geometry_msgs/Vector3.h>
 #include <pcl/filters/voxel_grid.h>
+#include <ros/callback_queue.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_datatypes.h>
+#include <unitree_legged_msgs/HighState.h>
 
-#include "yaml_helper.hpp"
 #include "common.hpp"
-#include "options.h"
 #include "lidar_processing.h"
+#include "options.h"
 #include "timer_utils.hpp"
+#include "yaml_helper.hpp"
 // #include "voxel_grid.hpp"
 #include "eskf.h"
+#include "kinematics.h"
 #include "state_initial.hpp"
 #include "voxel_map.h"
-#include "kinematics.h"
 
+namespace legkilo {
 
-namespace legkilo{
-
-class RosInterface{
-public:
+class RosInterface {
+   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     RosInterface() = delete;
     RosInterface(ros::NodeHandle& nh);
     ~RosInterface();
-    
+
     void rosInit(const std::string& config_file);
     void run();
 
-private:
+   private:
     bool initParamAndReset(const std::string& config_file);
     void subscribeLidar();
     void subscribeKinematicImu();
@@ -70,7 +69,7 @@ private:
     void publishOdomTFPath(double end_time);
     void publishPointcloudWorld(double end_time);
     void publishPointcloudBody(double end_time);  // without undistort
-    
+
     ros::NodeHandle& nh_;
 
     // subscriber
@@ -78,7 +77,7 @@ private:
     ros::Subscriber sub_imu_raw_;
     ros::Subscriber sub_kinematic_raw_;
 
-    //publisher
+    // publisher
     ros::Publisher pub_pointcloud_body_;
     ros::Publisher pub_pointcloud_world_;
     ros::Publisher pub_path_;
@@ -112,7 +111,7 @@ private:
     std::deque<common::KinImuMeas> kin_imu_cache_;
     common::MeasGroup measure_;
 
-    //sync package
+    // sync package
     std::mutex mutex_;
     double last_timestamp_imu_;
     double last_timestamp_kin_imu_;
@@ -133,7 +132,7 @@ private:
     double last_state_predict_time_;
     double last_state_update_time_;
 
-    //sensor param
+    // sensor param
     Mat3D ext_rot_;
     Vec3D ext_t_;
     double satu_acc_;
@@ -143,5 +142,5 @@ private:
     size_t success_pts_size;
 };
 
-} // namespace legkilo
-#endif // LEG_KILO_ROS_INTERFACE_H
+}  // namespace legkilo
+#endif  // LEG_KILO_ROS_INTERFACE_H
