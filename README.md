@@ -97,3 +97,8 @@ If you found this code/work to be useful in your own research, please considerin
 
 # Contact
 If you have questions, make an issue or contact me at [ouguangjun98@gmail.com](ouguangjun98@gmail.com) 
+
+# Star History
+<a href="https://www.star-history.com/#ouguangjun/Leg-KILO&Date">
+  <img src="https://api.star-history.com/svg?repos=ouguangjun/Leg-KILO&type=Date" width="600" alt="Star History Chart"/>
+</a>
