@@ -1,0 +1,11 @@
+<launch>
+
+    <arg name="config_file" default="$(find legkilo)/config/nclt.yaml"/>
+
+    <node pkg="legkilo" type="legkilo_node" name="legkilo_node" output="screen"
+        args="--config_file=$(arg config_file)" />
+    
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find legkilo)/rviz/legkilo.rviz" />
+    
+    launch-prefix="gdb -ex run --args"
+</launch>
