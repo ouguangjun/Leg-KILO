@@ -49,6 +49,7 @@ leg_thigh_length: 0.213
 leg_thigh_offset: 0.0465
 contact_force_threshold_up: 40
 contact_force_threshold_down: 60
+pub_joint_tf_enable: true
 
 satu_acc: 35
 satu_gyr: 30
@@ -63,8 +64,8 @@ gyr_bias_process_cov: 0.001
 kin_bias_process_cov: 0.001
 
 imu_acc_meas_noise: 0.01
-imu_acc_z_meas_noise: 1.0
-imu_gyr_meas_noise: 0.01
+imu_acc_z_meas_noise: 0.1
+imu_gyr_meas_noise: 0.001
 kin_meas_noise: 0.1
 chd_meas_noise: 0.1
 contact_meas_noise: 0.001

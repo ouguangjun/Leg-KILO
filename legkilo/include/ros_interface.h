@@ -82,6 +82,7 @@ class RosInterface {
     ros::Publisher pub_pointcloud_world_;
     ros::Publisher pub_path_;
     ros::Publisher pub_odom_world_;
+    ros::Publisher pub_joint_state_;
 
     nav_msgs::Odometry odom_world_;
     nav_msgs::Path path_world_;
@@ -140,6 +141,9 @@ class RosInterface {
 
     // LOG
     size_t success_pts_size;
+
+    //vis
+    bool pub_joint_tf_enable_ = true;
 };
 
 }  // namespace legkilo

@@ -15,7 +15,7 @@ init_time: 0.05
 gravity: 9.81                
 
 # Extrinsic (Transformation  from IMU coordinate  to Lidar coordinate)
-extrinsic_T: [0.0, 0.0, 0.0]
+extrinsic_T: [0.0, 0.0, 0.20]
 extrinsic_R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
 
 # Lidar Common
@@ -25,7 +25,7 @@ blind: 1.5
 filter_num: 3
 point_stamp_correct: true  # Set true for legkilo dataset
                                                          # (lidar timestamp is the end time of scan)
-voxel_grid_resolution: 0.5
+voxel_grid_resolution: 0.3
 
 # Voxel Map
 pub_plane_en: false
@@ -49,6 +49,7 @@ leg_thigh_length: 0.213
 leg_thigh_offset: 0.08
 contact_force_threshold_up: 220
 contact_force_threshold_down: 200
+pub_joint_tf_enable: true
 
 satu_acc: 35
 satu_gyr: 30

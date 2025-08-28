@@ -10,9 +10,10 @@ RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
     pub_path_ = nh.advertise<nav_msgs::Path>("/path", 10000);
     pub_pointcloud_world_ = nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered", 10000);
     pub_pointcloud_body_ = nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered_body", 10000);
+    if (pub_joint_tf_enable_) { pub_joint_state_ = nh_.advertise<sensor_msgs::JointState>("/joint_states", 10000); }
 
     odom_world_.header.frame_id = "camera_init";
-    odom_world_.child_frame_id = "body";
+    odom_world_.child_frame_id = "base";
     path_world_.header.frame_id = "camera_init";
     path_world_.header.stamp = ros::Time::now();
     pose_path_.header.frame_id = "camera_init";
@@ -108,12 +109,17 @@ bool RosInterface::initParamAndReset(const std::string& config_file) {
     voxel_map_config.sliding_thresh = yaml_helper.get<double>("sliding_thresh");
     map_manager_ = std::make_unique<VoxelMapManager>(voxel_map_config);
 
+    /* Extrinsic*/
     std::vector<double> ext_t = yaml_helper.get<std::vector<double>>("extrinsic_T");
     std::vector<double> ext_R = yaml_helper.get<std::vector<double>>("extrinsic_R");
     ext_rot_ << MAT_FROM_ARRAY(ext_R);
     ext_t_ << VEC_FROM_ARRAY(ext_t);
     map_manager_->extT_ = ext_t_;
     map_manager_->extR_ = ext_rot_;
+
+    /* Visualizaition*/
+    pub_joint_tf_enable_ = yaml_helper.get<bool>("pub_joint_tf_enable");
+
 
     return true;
 }
@@ -250,6 +256,25 @@ void RosInterface::kinematicImuCallBack(const unitree_legged_msgs::HighState::Co
     last_timestamp_kin_imu_ = timestamp;
     last_highstate_msg = *highstate_msg;
     mutex_.unlock();
+
+    if (pub_joint_tf_enable_) {
+        static std::vector<std::string> joint_names = {
+            "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint", "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
+            "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint", "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint"};
+        sensor_msgs::JointState joint_state;
+        joint_state.header.stamp = last_highstate_msg.stamp;
+        joint_state.name = joint_names;
+        const auto &motor = last_highstate_msg.motorState;
+        joint_state.position = {
+            motor[0].q, motor[1].q, motor[2].q, motor[3].q, motor[4].q,  motor[5].q,
+            motor[6].q, motor[7].q, motor[8].q, motor[9].q, motor[10].q, motor[11].q,
+        };
+        joint_state.velocity = {
+            motor[0].dq, motor[1].dq, motor[2].dq, motor[3].dq, motor[4].dq,  motor[5].dq,
+            motor[6].dq, motor[7].dq, motor[8].dq, motor[9].dq, motor[10].dq, motor[11].dq,
+        };
+        pub_joint_state_.publish(joint_state);
+    }
     return;
 }
 
@@ -366,7 +391,7 @@ void RosInterface::publishOdomTFPath(double end_time) {
     q_tf_.setY(odom_world_.pose.pose.orientation.y);
     q_tf_.setZ(odom_world_.pose.pose.orientation.z);
     transform_.setRotation(q_tf_);
-    br_.sendTransform(tf::StampedTransform(transform_, odom_world_.header.stamp, "camera_init", "body"));
+    br_.sendTransform(tf::StampedTransform(transform_, odom_world_.header.stamp, "camera_init", "base"));
 
     // path
     pose_path_.header.stamp = odom_world_.header.stamp;
