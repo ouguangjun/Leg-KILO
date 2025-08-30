@@ -49,6 +49,7 @@ leg_thigh_length: 0.213
 leg_thigh_offset: 0.08
 contact_force_threshold_up: 220
 contact_force_threshold_down: 200
+pub_joint_tf_enable: false
 
 satu_acc: 35
 satu_gyr: 30

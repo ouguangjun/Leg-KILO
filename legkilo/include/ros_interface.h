@@ -142,7 +142,7 @@ class RosInterface {
     // LOG
     size_t success_pts_size;
 
-    //vis
+    // vis
     bool pub_joint_tf_enable_ = true;
 };
 

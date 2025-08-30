@@ -120,7 +120,6 @@ bool RosInterface::initParamAndReset(const std::string& config_file) {
     /* Visualizaition*/
     pub_joint_tf_enable_ = yaml_helper.get<bool>("pub_joint_tf_enable");
 
-
     return true;
 }
 
@@ -264,7 +263,7 @@ void RosInterface::kinematicImuCallBack(const unitree_legged_msgs::HighState::Co
         sensor_msgs::JointState joint_state;
         joint_state.header.stamp = last_highstate_msg.stamp;
         joint_state.name = joint_names;
-        const auto &motor = last_highstate_msg.motorState;
+        const auto& motor = last_highstate_msg.motorState;
         joint_state.position = {
             motor[0].q, motor[1].q, motor[2].q, motor[3].q, motor[4].q,  motor[5].q,
             motor[6].q, motor[7].q, motor[8].q, motor[9].q, motor[10].q, motor[11].q,

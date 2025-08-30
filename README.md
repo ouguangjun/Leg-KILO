@@ -89,6 +89,14 @@ roslaunch legkilo diter.launch
 rosbag play lawn_go2_lower_day.bag
 ```
 
+## NCLT Dataset
+```bash
+source devel/setup.bash
+roslaunch legkilo nclt.launch
+rosbag play xxxx.bag
+```
+
+
 # Acknowledgments
 
 Thanks for their excellent open source work:
