@@ -7,7 +7,7 @@
     
     <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find legkilo)/rviz/legkilo_robot.rviz" />
 
-    <param name="robot_description" textfile="$(find legkilo)/robot_urdf/go2_description/urdf/go2.urdf"/>
+    <param name="robot_description" textfile="$(find legkilo)/robot_urdf/go1_description/urdf/go1.urdf"/>
 
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
         <param name="publish_frequency" type="double" value="1000.0"/>

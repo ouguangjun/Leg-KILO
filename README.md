@@ -1,9 +1,22 @@
-# Leg-KILO 2.0
+<h1 align="center">Leg-KILO 2.0</h1>
+<h2 align="center">Robust Kinematic-IMU-Lidar Odometry</h2>
+
+<p align="center">
+  <!-- Bilibili 视频 -->
+  <a href="https://space.bilibili.com/82127930/lists?sid=6240305&spm_id_from=333.788.0.0">
+    <img src="https://img.shields.io/badge/Video-Bilibili-brightgreen" alt="Bilibili Video" />
+  </a>
+  <!-- 论文 -->
+  <a href="https://ieeexplore.ieee.org/document/10631676">
+    <img src="https://img.shields.io/badge/Paper-LegKILO1.0-brightgreen" alt="LegKILO 1.0 Paper" />
+  </a>
+</p>
+
 
 Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state Kalman filter odometry system. Both the methodology and implementation differ from the original paper. The new version of Leg‑KILO is more efficient and lightweight. Key features include:
 
 - **Tight Sensor Fusion via ESKF**  
-  All sensors (LiDAR, IMU, and optional leg kinematics) are fused in a single Error‑State Kalman Filter.
+  All sensors (**LiDAR**, **IMU**, and **optional leg kinematics**) are fused in a single Error‑State Kalman Filter.
 
 - **Per-Point LiDAR Observations & IMU as Model Observation**  
   Each LiDAR point is treated as an independent observation, and the IMU is used as a model observation—inspired by [Point‑LIO](https://github.com/hku-mars/Point-LIO). This makes the system more robust during high dynamic motion.
@@ -15,15 +28,17 @@ Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state K
   Thanks to the ESKF and voxel map structure, single‑frame processing runs in **5–20 ms** .
 
 - **Extensive Validation**  
-  Tested on both self‑collected and public datasets, and validated on Unitree Go1 and Go2 robots(with more datasets under continuous testing). 
+  Tested on both self‑collected and public datasets, and validated on ***Unitree Go1*** and ***Go2*** robots(with more datasets under continuous testing). 
 
-<p align='center'>
-    <img src="https://github.com/ouguangjun/kilo-dataset/blob/main/figure/map_dog.jpg" alt="drawing" width="500"/>
+<p align="center">
+  <img src="./doc/fig/map_dog.jpg" alt="Image 1" width="45%" />
+  <img src="./doc/fig/dog_urdf_vis.jpg" alt="Image 2" width="43%" />
 </p>
 
+
 # News
-- **`2024.07.31`:** The code is released.
 - **`2024.07.20`:** The paper is accepted by RA-L 2024!
+- **`2024.07.31`:** The code is released.
 - **`2025.07.20`:** Leg-KILO 2.0 is released.
 
 # Prerequisites
@@ -39,6 +54,10 @@ Currently our code is tested on
 - [unitree_legged_msgs](https://github.com/unitreerobotics/unitree_ros_to_real) (has included in the project)
 - glog
 - yaml-cpp
+
+```bash
+sudo apt update && sudo apt install -y libpcl-dev libeigen3-dev libgoogle-glog-dev libyaml-cpp-dev
+```
 
 # Build
 
@@ -76,6 +95,7 @@ Thanks for their excellent open source work:
 
 - [Point‑LIO](https://github.com/hku-mars/Point-LIO)
 - [FAST‑LIVO2](https://github.com/hku-mars/FAST-LIVO2)
+- [FASTER-LIO](https://github.com/gaoxiang12/faster-lio)
 - [SAD](https://github.com/gaoxiang12/slam_in_autonomous_driving)
 - [SVO](https://github.com/uzh-rpg/rpg_svo_pro_open)
 - [A1-QP-MPC-Controller](https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller).
