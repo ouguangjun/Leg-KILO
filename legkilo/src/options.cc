@@ -5,7 +5,7 @@ namespace options {
 
 bool kKinAndImuUse = false;
 bool kImuUse = false;
-bool FLAG_EXIT = false;
+std::atomic_bool FLAG_EXIT{false};
 bool kRedundancy = false;
 
 std::string kLidarTopic;

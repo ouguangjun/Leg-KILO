@@ -156,7 +156,7 @@ void RosInterface::lidarLoop() {
     this->sub_lidar_raw_ =
         nh.subscribe<sensor_msgs::PointCloud2>(options::kLidarTopic, 1000, &RosInterface::lidarCallBack, this);
 
-    while (ros::ok() && !options::FLAG_EXIT) { queue.callAvailable(ros::WallDuration(0.2)); }
+    while (ros::ok() && !options::FLAG_EXIT.load()) { queue.callAvailable(ros::WallDuration(0.2)); }
 }
 
 void RosInterface::imuLoop() {
@@ -167,7 +167,7 @@ void RosInterface::imuLoop() {
     nh.setCallbackQueue(&queue);
     this->sub_imu_raw_ = nh.subscribe(options::kImuTopic, 10000, &RosInterface::imuCallBack, this);
 
-    while (ros::ok() && !options::FLAG_EXIT) { queue.callAvailable(ros::WallDuration(0.1)); }
+    while (ros::ok() && !options::FLAG_EXIT.load()) { queue.callAvailable(ros::WallDuration(0.1)); }
 }
 
 void RosInterface::kinematicImuLoop() {
@@ -178,7 +178,7 @@ void RosInterface::kinematicImuLoop() {
     nh.setCallbackQueue(&queue);
     this->sub_kinematic_raw_ = nh.subscribe(options::kKinematicTopic, 10000, &RosInterface::kinematicImuCallBack, this);
 
-    while (ros::ok() && !options::FLAG_EXIT) { queue.callAvailable(ros::WallDuration(0.1)); }
+    while (ros::ok() && !options::FLAG_EXIT.load()) { queue.callAvailable(ros::WallDuration(0.1)); }
 }
 
 void RosInterface::lidarCallBack(const sensor_msgs::PointCloud2::ConstPtr& msg) {

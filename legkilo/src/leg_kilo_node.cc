@@ -8,9 +8,8 @@
 
 DEFINE_string(config_file, "config/leg_fusion.yaml", "Path to the YAML file");
 void sigHandle(int sig) {
-    legkilo::options::FLAG_EXIT = true;
+    legkilo::options::FLAG_EXIT.store(true);
     LOG(INFO) << "catch sig " << sig << "  FLAG_EXIT = True";
-    ros::shutdown();
 }
 
 int main(int argc, char** argv) {
@@ -32,7 +31,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Leg KILO Node Starts";
 
     ros::Rate rate(5000);
-    while (ros::ok() && !legkilo::options::FLAG_EXIT) {
+    while (ros::ok() && !legkilo::options::FLAG_EXIT.load()) {
         ros_interface_node->run();
         rate.sleep();
     }

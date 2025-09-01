@@ -1,9 +1,8 @@
 #ifndef LEG_KILO_OPTIONS_H
 #define LEG_KILO_OPTIONS_H
 
+#include <atomic>
 #include <string>
-#include <vector>
-
 namespace legkilo {
 namespace options {
 
@@ -13,7 +12,7 @@ extern std::string kImuTopic;
 
 extern bool kKinAndImuUse;  // use kin. and imu together
 extern bool kImuUse;        // only use imu
-extern bool FLAG_EXIT;
+extern std::atomic_bool FLAG_EXIT;
 extern bool kRedundancy;  // for legkilo dataset
 
 }  // namespace options
