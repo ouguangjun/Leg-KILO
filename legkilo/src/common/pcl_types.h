@@ -2,7 +2,6 @@
 #define LEG_KILO_PCL_TYPES_H
 
 #include <pcl/point_cloud.h>
-#include <pcl/point_representation.h>
 #include <pcl/point_types.h>
 #include <Eigen/Dense>
 #include <vector>

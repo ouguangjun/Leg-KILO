@@ -21,10 +21,10 @@ class StateInitial {
     bool b_first_frame_ = true;
     double G_m_s2_ = 9.81;
     double acc_norm_;
-    Eigen::Vector3d mean_acc_;
-    Eigen::Vector3d mean_gyr_;
-    Eigen::Vector3d cov_acc_;
-    Eigen::Vector3d cov_gyr_;
+    Vec3D mean_acc_;
+    Vec3D mean_gyr_;
+    Vec3D cov_acc_;
+    Vec3D cov_gyr_;
 };
 
 class StateInitialByImu : public StateInitial {
@@ -32,8 +32,8 @@ class StateInitialByImu : public StateInitial {
     explicit StateInitialByImu(double G_m_s2) : StateInitial(G_m_s2) {}
 
     void processing(MeasGroup& measure, ESKF& eskf) override {
-        Eigen::Vector3d cur_acc;
-        Eigen::Vector3d cur_gyr;
+        Vec3D cur_acc;
+        Vec3D cur_gyr;
 
         if (b_first_frame_) {
             b_first_frame_ = false;
@@ -77,8 +77,8 @@ class StateInitialByKinImu : public StateInitial {
     explicit StateInitialByKinImu(double G_m_s2) : StateInitial(G_m_s2) {}
 
     void processing(MeasGroup& measure, ESKF& eskf) override {
-        Eigen::Vector3d cur_acc;
-        Eigen::Vector3d cur_gyr;
+        Vec3D cur_acc;
+        Vec3D cur_gyr;
 
         if (b_first_frame_) {
             b_first_frame_ = false;

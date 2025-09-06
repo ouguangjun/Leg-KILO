@@ -33,22 +33,8 @@ which is included as part of this source code package.
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
 
-using namespace legkilo;
-
 #define VOXELMAP_HASH_P 116101
 #define VOXELMAP_MAX_N 10000000000
-
-typedef Eigen::Vector2f V2F;
-typedef Eigen::Vector2d V2D;
-typedef Eigen::Vector3d V3D;
-typedef Eigen::Matrix3d M3D;
-typedef Eigen::Vector3f V3F;
-typedef Eigen::Matrix3f M3F;
-
-#define MD(a, b) Eigen::Matrix<double, (a), (b)>
-#define VD(a) Eigen::Matrix<double, (a), 1>
-#define MF(a, b) Eigen::Matrix<float, (a), (b)>
-#define VF(a) Eigen::Matrix<float, (a), 1>
 
 static int voxel_plane_id = 0;
 
@@ -98,7 +84,7 @@ typedef struct PointToPlane {
     Eigen::Vector3d center_;
     Eigen::Matrix<double, 3, 3> point_crossmat_;
     Eigen::Matrix<double, 6, 6> plane_var_;
-    M3D body_cov_;
+    Eigen::Matrix3d body_cov_;
     int layer_;
     double d_;
     double eigen_value_;
@@ -220,40 +206,36 @@ class VoxelMapManager {
     ros::Publisher voxel_map_pub_;
     std::unordered_map<VOXEL_LOCATION, VoxelOctoTree *> voxel_map_;
 
-    CloudPtr feats_undistort_;
-    CloudPtr feats_down_body_;
-    CloudPtr feats_down_world_;
+    legkilo::CloudPtr feats_undistort_;
+    legkilo::CloudPtr feats_down_body_;
+    legkilo::CloudPtr feats_down_world_;
 
-    M3D extR_;
-    V3D extT_;
+    Eigen::Matrix3d extR_;
+    Eigen::Vector3d extT_;
     float build_residual_time, ekf_time;
     float ave_build_residual_time = 0.0;
     float ave_ekf_time = 0.0;
     int scan_count = 0;
     // StatesGroup state_;
-    V3D position_last_;
+    Eigen::Vector3d position_last_;
 
-    V3D last_slide_position = {0, 0, 0};
+    Eigen::Vector3d last_slide_position = {0, 0, 0};
 
     geometry_msgs::Quaternion geoQuat_;
 
     int feats_down_size_;
     int effct_feat_num_;
-    std::vector<M3D> cross_mat_list_;
-    std::vector<M3D> body_cov_list_;
+    std::vector<Eigen::Matrix3d> cross_mat_list_;
+    std::vector<Eigen::Matrix3d> body_cov_list_;
     std::vector<pointWithVar> pv_list_;
     std::vector<PointToPlane> ptpl_list_;
 
     VoxelMapManager(VoxelMapConfig &config_setting) : config_setting_(config_setting) {
         current_frame_id_ = 0;
-        feats_undistort_.reset(new PointCloudType());
-        feats_down_body_.reset(new PointCloudType());
-        feats_down_world_.reset(new PointCloudType());
+        feats_undistort_.reset(new legkilo::PointCloudType());
+        feats_down_body_.reset(new legkilo::PointCloudType());
+        feats_down_world_.reset(new legkilo::PointCloudType());
     };
-
-    // void StateEstimation(StatesGroup &state_propagat);
-    void TransformLidar(const Eigen::Matrix3d rot, const Eigen::Vector3d t, const CloudPtr &input_cloud,
-                        pcl::PointCloud<pcl::PointXYZI>::Ptr &trans_cloud);
 
     void BuildVoxelMap(const Eigen::Matrix3d rot, const Eigen::Matrix3d rot_cov, const Eigen::Matrix3d pos_cov);
     // V3F RGBFromVoxel(const V3D &input_point);

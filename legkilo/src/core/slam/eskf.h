@@ -1,14 +1,13 @@
 #ifndef LEG_KILO_ESKF_H
 #define LEG_KILO_ESKF_H
 
+#include "common/eigen_types.hpp"
 #include "common/math_utils.hpp"
 #include "common/sensor_types.hpp"
 
 namespace legkilo {
 
 constexpr int DIM_STATE = 30;
-using Mat3D = Eigen::Matrix<double, 3, 3>;
-using Vec3D = Eigen::Matrix<double, 3, 1>;
 using StateVec = Eigen::Matrix<double, DIM_STATE, 1>;
 using StateCov = Eigen::Matrix<double, DIM_STATE, DIM_STATE>;
 using StateF = Eigen::Matrix<double, DIM_STATE, DIM_STATE>;

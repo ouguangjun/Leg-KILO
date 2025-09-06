@@ -1,5 +1,30 @@
 #include "interface/ros1/ros_interface.h"
 
+#include <iomanip>
+#include <iostream>
+#include <utility>
+
+#include <geometry_msgs/Vector3.h>
+#include <nav_msgs/Odometry.h>
+#include <nav_msgs/Path.h>
+#include <pcl/filters/voxel_grid.h>
+#include <ros/callback_queue.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_datatypes.h>
+#include <unitree_legged_msgs/HighState.h>
+
+#include "common/timer_utils.hpp"
+#include "common/yaml_helper.hpp"
+#include "core/slam/eskf.h"
+#include "core/slam/voxel_map.h"
+#include "preprocess/kinematics.h"
+#include "preprocess/lidar_processing.h"
+#include "preprocess/state_initial.hpp"
+
 namespace legkilo {
 
 const bool time_list(PointType& x, PointType& y) { return (x.curvature < y.curvature); }
@@ -437,8 +462,8 @@ bool RosInterface::predictUpdatePoint(double current_time, size_t idx_i, size_t 
         calcBodyCov(cur_pt_var.point_b, map_manager_->config_setting_.dept_err_,
                     map_manager_->config_setting_.beam_err_, cur_pt_var.body_var);
         cur_pt_var.point_crossmat << SKEW_SYM_MATRIX(cur_pt_var.point_i);
-        M3D rot_extR = eskf_->state().rot_ * ext_rot_;
-        M3D rot_crossmat = eskf_->state().rot_ * cur_pt_var.point_crossmat;
+        Mat3D rot_extR = eskf_->state().rot_ * ext_rot_;
+        Mat3D rot_crossmat = eskf_->state().rot_ * cur_pt_var.point_crossmat;
         cur_pt_var.var = rot_extR * cur_pt_var.body_var * rot_extR.transpose() +
                          rot_crossmat * eskf_->cov().block<3, 3>(0, 0) * rot_crossmat.transpose() +
                          eskf_->cov().block<3, 3>(3, 3);
@@ -496,7 +521,8 @@ bool RosInterface::predictUpdatePoint(double current_time, size_t idx_i, size_t 
         obs_shared.pt_R.resize(effect_num);
         obs_shared.pt_z.resize(effect_num);
         for (size_t k = 0; k < effect_num; ++k) {
-            V3D crossmat_rotT_u = ptpl_list[k].point_crossmat_ * eskf_->state().rot_.transpose() * ptpl_list[k].normal_;
+            Vec3D crossmat_rotT_u =
+                ptpl_list[k].point_crossmat_ * eskf_->state().rot_.transpose() * ptpl_list[k].normal_;
             obs_shared.pt_h.row(k) << crossmat_rotT_u(0), crossmat_rotT_u(1), crossmat_rotT_u(2),
                 ptpl_list[k].normal_(0), ptpl_list[k].normal_(1), ptpl_list[k].normal_(2);
 
@@ -505,7 +531,7 @@ bool RosInterface::predictUpdatePoint(double current_time, size_t idx_i, size_t 
             Eigen::Matrix<double, 1, 6> J_nq;
             J_nq.block<1, 3>(0, 0) = ptpl_list[k].point_w_ - ptpl_list[k].center_;
             J_nq.block<1, 3>(0, 3) = -ptpl_list[k].normal_;
-            M3D var;
+            Mat3D var;
             var = eskf_->state().rot_ * ext_rot_ * ptpl_list[k].body_cov_ * ext_rot_.transpose() *
                   eskf_->state().rot_.transpose();
             double single_l = J_nq * ptpl_list[k].plane_var_ * J_nq.transpose();
@@ -525,8 +551,8 @@ bool RosInterface::predictUpdatePoint(double current_time, size_t idx_i, size_t 
             cloud_down_world_->points[idx_i + i].z = pv_list[i].point_w(2);
             cloud_down_world_->points[idx_i + i].intensity = 255;
 
-            M3D rot_extR = eskf_->state().rot_ * ext_rot_;
-            M3D rot_crossmat = eskf_->state().rot_ * pv_list[i].point_crossmat;
+            Mat3D rot_extR = eskf_->state().rot_ * ext_rot_;
+            Mat3D rot_crossmat = eskf_->state().rot_ * pv_list[i].point_crossmat;
             pv_list[i].var = rot_extR * pv_list[i].body_var * rot_extR.transpose() +
                              rot_crossmat * eskf_->cov().block<3, 3>(0, 0) * rot_crossmat.transpose() +
                              eskf_->cov().block<3, 3>(3, 3);

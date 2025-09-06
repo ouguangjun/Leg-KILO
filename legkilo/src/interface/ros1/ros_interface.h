@@ -2,18 +2,22 @@
 #define LEG_KILO_ROS_INTERFACE_H
 
 #include <deque>
-#include <iomanip>
-#include <iostream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
-#include <utility>
 
+#include "common/eigen_types.hpp"
+#include "common/math_utils.hpp"
+#include "common/pcl_types.h"
+#include "common/sensor_types.hpp"
+#include "interface/ros1/options.h"
+
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <pcl/filters/voxel_grid.h>
-#include <ros/callback_queue.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
@@ -22,17 +26,14 @@
 #include <tf/transform_datatypes.h>
 #include <unitree_legged_msgs/HighState.h>
 
-#include "common/pcl_types.h"
-#include "common/sensor_types.hpp"
-#include "common/timer_utils.hpp"
-#include "common/yaml_helper.hpp"
-#include "interface/ros1/options.h"
-#include "preprocess/lidar_processing.h"
-// #include "common/voxel_grid.hpp"
-#include "core/slam/eskf.h"
-#include "core/slam/voxel_map.h"
-#include "preprocess/kinematics.h"
-#include "preprocess/state_initial.hpp"
+namespace legkilo {
+class ESKF;
+class Kinematics;
+class LidarProcessing;
+class StateInitial;
+}  // namespace legkilo
+
+class VoxelMapManager;
 
 namespace legkilo {
 
