@@ -3,8 +3,8 @@
 
 #include <unistd.h>
 
-#include "glog_utils.hpp"
-#include "ros_interface.h"
+#include "common/glog_utils.hpp"
+#include "interface/ros1/ros_interface.h"
 
 DEFINE_string(config_file, "config/leg_fusion.yaml", "Path to the YAML file");
 void sigHandle(int sig) {

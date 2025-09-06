@@ -29,8 +29,8 @@ which is included as part of this source code package.
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include "common.hpp"
-#include "math_utils.hpp"
+#include "common/common.hpp"
+#include "common/math_utils.hpp"
 
 using namespace legkilo;
 

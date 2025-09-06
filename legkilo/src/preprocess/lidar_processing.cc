@@ -1,4 +1,4 @@
-#include "lidar_processing.h"
+#include "preprocess/lidar_processing.h"
 
 namespace legkilo {
 LidarProcessing::LidarProcessing(LidarProcessing::Config config) : config_(config) {

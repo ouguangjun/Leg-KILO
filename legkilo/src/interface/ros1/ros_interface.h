@@ -22,16 +22,16 @@
 #include <tf/transform_datatypes.h>
 #include <unitree_legged_msgs/HighState.h>
 
-#include "common.hpp"
-#include "lidar_processing.h"
-#include "options.h"
-#include "timer_utils.hpp"
-#include "yaml_helper.hpp"
-// #include "voxel_grid.hpp"
-#include "eskf.h"
-#include "kinematics.h"
-#include "state_initial.hpp"
-#include "voxel_map.h"
+#include "common/common.hpp"
+#include "common/timer_utils.hpp"
+#include "common/yaml_helper.hpp"
+#include "interface/ros1/options.h"
+#include "preprocess/lidar_processing.h"
+// #include "common/voxel_grid.hpp"
+#include "core/slam/eskf.h"
+#include "core/slam/voxel_map.h"
+#include "preprocess/kinematics.h"
+#include "preprocess/state_initial.hpp"
 
 namespace legkilo {
 

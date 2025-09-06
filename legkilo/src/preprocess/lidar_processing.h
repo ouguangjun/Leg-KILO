@@ -1,7 +1,7 @@
 #ifndef LEG_KILO_LIDAR_PROCESSING_H
 #define LEG_KILO_LIDAR_PROCESSING_H
 
-#include "common.hpp"
+#include "common/common.hpp"
 
 #include <glog/logging.h>
 #include <pcl_conversions/pcl_conversions.h>

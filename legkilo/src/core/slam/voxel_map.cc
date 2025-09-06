@@ -15,7 +15,7 @@ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
 which is included as part of this source code package.
 */
 
-#include "voxel_map.h"
+#include "core/voxel_map.h"
 
 void calcBodyCov(Eigen::Vector3d &pb, const float range_inc, const float degree_inc, Eigen::Matrix3d &cov) {
     if (pb[2] == 0) pb[2] = 0.0001;

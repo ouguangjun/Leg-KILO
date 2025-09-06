@@ -1,4 +1,4 @@
-#include "kinematics.h"
+#include "preprocess/kinematics.h"
 
 namespace legkilo {
 

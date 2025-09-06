@@ -1,8 +1,8 @@
 #ifndef LEG_KILO_STATE_INITIAL_HPP
 #define LEG_KILO_STATE_INITIAL_HPP
 
-#include "common.hpp"
-#include "eskf.h"
+#include "common/common.hpp"
+#include "core/slam/eskf.h"
 
 namespace legkilo {
 

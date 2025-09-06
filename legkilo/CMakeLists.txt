@@ -39,6 +39,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 include_directories(
     include
+    src
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
@@ -54,26 +55,33 @@ catkin_package(
 )
 
 set(HEADERS
-    include/common.hpp
-    include/glog_utils.hpp
-    include/timer_utils.hpp
-    include/yaml_helper.hpp
-    include/state_initial.hpp
-    include/voxel_map.h
-    include/lidar_processing.h
-    include/ros_interface.h
-    include/options.h
-    include/eskf.h
-    include/kinematics.h
+    src/common/common.hpp
+    src/common/glog_utils.hpp
+    src/common/timer_utils.hpp
+    src/common/yaml_helper.hpp
+    src/common/math_utils.hpp
+    src/common/voxel_grid.hpp
+    
+    src/preprocess/state_initial.hpp
+    src/preprocess/lidar_processing.h
+    src/preprocess/kinematics.h
+    
+    src/core/voxel_map.h
+    src/core/eskf.h
+    
+    src/interface/ros1/ros_interface.h
+    src/interface/ros1/options.h
 )
 
 set(SOURCES
-    src/lidar_processing.cc
-    src/ros_interface.cc
-    src/options.cc
-    src/eskf.cc
-    src/voxel_map.cc
-    src/kinematics.cc
+    src/preprocess/lidar_processing.cc
+    src/preprocess/kinematics.cc
+    
+    src/core/voxel_map.cc
+    src/core/eskf.cc
+    
+    src/interface/ros1/ros_interface.cc
+    src/interface/ros1/options.cc
 )
 
 add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})
@@ -88,7 +96,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_executable(${PROJECT_NAME}_node
-    src/leg_kilo_node.cc
+    src/apps/leg_kilo_node.cc
 )
 target_link_libraries(${PROJECT_NAME}_node
     ${PROJECT_NAME}  
