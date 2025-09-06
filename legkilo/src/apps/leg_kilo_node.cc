@@ -36,7 +36,11 @@ int main(int argc, char** argv) {
         ros_interface_node->run();
         rate.sleep();
     }
-
+    legkilo::options::FLAG_EXIT.store(true);
+    
+    // Explicitly destroy ros_interface_node to ensure proper cleanup
+    ros_interface_node.reset();
+    LOG(INFO) << "RosInterface destroyed";
     LOG(INFO) << "Leg KILO Node Ends";
     legkilo::Timer::logAllAverTime();
     logging->flushLogFiles();

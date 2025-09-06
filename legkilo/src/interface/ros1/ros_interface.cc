@@ -32,7 +32,7 @@ const bool time_list(PointType& x, PointType& y) { return (x.curvature < y.curva
 #define THREAD_SLEEP(ms) std::this_thread::sleep_for(std::chrono::milliseconds(ms))
 
 RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
-    LOG(INFO) << "Ros Interface is Constructed";
+    LOG(INFO) << "Ros Interface is being Constructed";
     pub_odom_world_ = nh_.advertise<nav_msgs::Odometry>("/Odomtry", 10000);
     pub_path_ = nh.advertise<nav_msgs::Path>("/path", 10000);
     pub_pointcloud_world_ = nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered", 10000);
@@ -47,10 +47,29 @@ RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
 }
 
 RosInterface::~RosInterface() {
-    LOG(INFO) << "Ros Interface is Destructed";
-    if (lidar_thread_ && lidar_thread_->joinable()) { lidar_thread_->join(); }
-    if (imu_thread_ && imu_thread_->joinable()) { imu_thread_->join(); }
-    if (kinematic_thread_ && kinematic_thread_->joinable()) { kinematic_thread_->join(); }
+    LOG(INFO) << "Ros Interface is being Destructed";
+    
+    // Shutdown subscribers first to prevent new callbacks
+    sub_lidar_raw_.shutdown();
+    sub_imu_raw_.shutdown();
+    sub_kinematic_raw_.shutdown();
+    
+    // Wait a moment for any ongoing callbacks to complete
+    usleep(100000);
+    
+    // Stop threads
+    if (lidar_thread_ && lidar_thread_->joinable()) { 
+        lidar_thread_->join(); 
+        LOG(INFO) << "Lidar thread stopped";
+    }
+    if (imu_thread_ && imu_thread_->joinable()) { 
+        imu_thread_->join(); 
+        LOG(INFO) << "IMU thread stopped";
+    }
+    if (kinematic_thread_ && kinematic_thread_->joinable()) { 
+        kinematic_thread_->join(); 
+        LOG(INFO) << "Kinematic thread stopped";
+    }
 }
 
 bool RosInterface::initParamAndReset(const std::string& config_file) {
@@ -209,7 +228,7 @@ void RosInterface::kinematicImuLoop() {
 }
 
 void RosInterface::lidarCallBack(const sensor_msgs::PointCloud2::ConstPtr& msg) {
-    mutex_.lock();
+    std::lock_guard<std::mutex> lock(mutex_);
     static double last_scan_time = msg->header.stamp.toSec();
 
     Timer::measure("Lidar Processing", [&, this]() {
@@ -225,7 +244,6 @@ void RosInterface::lidarCallBack(const sensor_msgs::PointCloud2::ConstPtr& msg) 
     });
 
     last_scan_time = msg->header.stamp.toSec();
-    mutex_.unlock();
     return;
 }
 
@@ -242,16 +260,17 @@ void RosInterface::imuCallBack(const sensor_msgs::Imu::ConstPtr& msg) {
     }
 
     double timestamp = imu_msg->header.stamp.toSec();
-    mutex_.lock();
-    if (timestamp < last_timestamp_imu_) {
-        LOG(WARNING) << "Time inconsistency detected in Imu data stream";
-        imu_cache_.clear();
-    }
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (timestamp < last_timestamp_imu_) {
+            LOG(WARNING) << "Time inconsistency detected in Imu data stream";
+            imu_cache_.clear();
+        }
 
-    imu_cache_.push_back(imu_msg);
-    last_imu_msg = *imu_msg;
-    last_timestamp_imu_ = timestamp;
-    mutex_.unlock();
+        imu_cache_.push_back(imu_msg);
+        last_imu_msg = *imu_msg;
+        last_timestamp_imu_ = timestamp;
+    }
     return;
 }
 
@@ -268,20 +287,21 @@ void RosInterface::kinematicImuCallBack(const unitree_legged_msgs::HighState::Co
     }
 
     double timestamp = highstate_msg->stamp.toSec();
-    mutex_.lock();
-    if (timestamp < last_timestamp_kin_imu_) {
-        LOG(WARNING) << "Time inconsistency detected in Kin. Imu data stream";
-        kin_imu_cache_.clear();
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (timestamp < last_timestamp_kin_imu_) {
+            LOG(WARNING) << "Time inconsistency detected in Kin. Imu data stream";
+            kin_imu_cache_.clear();
+        }
+
+        common::KinImuMeas kin_imu_meas;
+
+        kinematics_->processing(*highstate_msg, kin_imu_meas);
+
+        kin_imu_cache_.push_back(kin_imu_meas);
+        last_timestamp_kin_imu_ = timestamp;
+        last_highstate_msg = *highstate_msg;
     }
-
-    common::KinImuMeas kin_imu_meas;
-
-    kinematics_->processing(*highstate_msg, kin_imu_meas);
-
-    kin_imu_cache_.push_back(kin_imu_meas);
-    last_timestamp_kin_imu_ = timestamp;
-    last_highstate_msg = *highstate_msg;
-    mutex_.unlock();
 
     if (pub_joint_tf_enable_) {
         static std::vector<std::string> joint_names = {
