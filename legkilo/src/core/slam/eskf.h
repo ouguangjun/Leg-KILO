@@ -1,8 +1,8 @@
 #ifndef LEG_KILO_ESKF_H
 #define LEG_KILO_ESKF_H
 
-#include "common/common.hpp"
 #include "common/math_utils.hpp"
+#include "common/sensor_types.hpp"
 
 namespace legkilo {
 

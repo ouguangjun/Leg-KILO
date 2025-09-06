@@ -54,37 +54,21 @@ catkin_package(
   INCLUDE_DIRS
 )
 
-set(HEADERS
-    src/common/common.hpp
-    src/common/glog_utils.hpp
-    src/common/timer_utils.hpp
-    src/common/yaml_helper.hpp
-    src/common/math_utils.hpp
-    src/common/voxel_grid.hpp
-    
-    src/preprocess/state_initial.hpp
-    src/preprocess/lidar_processing.h
-    src/preprocess/kinematics.h
-    
-    src/core/voxel_map.h
-    src/core/eskf.h
-    
-    src/interface/ros1/ros_interface.h
-    src/interface/ros1/options.h
-)
-
 set(SOURCES
+    # Preprocessing modules
     src/preprocess/lidar_processing.cc
     src/preprocess/kinematics.cc
     
-    src/core/voxel_map.cc
-    src/core/eskf.cc
+    # Core algorithms
+    src/core/slam/voxel_map.cc
+    src/core/slam/eskf.cc
     
+    # ROS interface
     src/interface/ros1/ros_interface.cc
     src/interface/ros1/options.cc
 )
 
-add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${PCL_COMMON_LIBRARIES}

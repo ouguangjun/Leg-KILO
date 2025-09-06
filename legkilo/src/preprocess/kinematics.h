@@ -1,7 +1,7 @@
 #ifndef LEG_KILO_KINEMATICS_H
 #define LEG_KILO_KINEMATICS_H
 
-#include "common/common.hpp"
+#include "common/sensor_types.hpp"
 
 #include <unitree_legged_msgs/HighState.h>
 

@@ -1,7 +1,8 @@
 #ifndef LEG_KILO_LIDAR_PROCESSING_H
 #define LEG_KILO_LIDAR_PROCESSING_H
 
-#include "common/common.hpp"
+#include "common/pcl_types.h"
+#include "common/sensor_types.hpp"
 
 #include <glog/logging.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -15,11 +16,16 @@ struct EIGEN_ALIGN16 Point {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }  // namespace velodyne_ros
+// clang-format off
 POINT_CLOUD_REGISTER_POINT_STRUCT(velodyne_ros::Point,
-                                  (float, x, x)(float, y, y)(float, z, z)(float, intensity,
-                                                                          intensity)(float, time, time)(uint16_t, ring,
-                                                                                                        ring))
-
+    (float, x, x)
+    (float, y, y)
+    (float, z, z)
+    (float, intensity, intensity)
+    (float, time, time)
+    (uint16_t, ring, ring)
+)
+// clang-format on
 namespace ouster_ros {
 struct EIGEN_ALIGN16 Point {
     PCL_ADD_POINT4D;
@@ -32,12 +38,19 @@ struct EIGEN_ALIGN16 Point {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }  // namespace ouster_ros
+// clang-format off
 POINT_CLOUD_REGISTER_POINT_STRUCT(ouster_ros::Point,
-                                  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(
-                                      std::uint32_t, t, t)(std::uint16_t, reflectivity,
-                                                           reflectivity)(std::uint8_t, ring,
-                                                                         ring)(std::uint16_t, ambient,
-                                                                               ambient)(std::uint32_t, range, range))
+    (float, x, x)
+    (float, y, y)
+    (float, z, z)
+    (float, intensity, intensity)
+    (std::uint32_t, t, t)
+    (std::uint16_t, reflectivity, reflectivity)
+    (std::uint8_t, ring, ring)
+    (std::uint16_t, ambient, ambient)
+    (std::uint32_t, range, range)
+)
+// clang-format on
 
 namespace legkilo {
 

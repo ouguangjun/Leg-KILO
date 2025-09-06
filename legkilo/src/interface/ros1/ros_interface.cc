@@ -4,6 +4,8 @@ namespace legkilo {
 
 const bool time_list(PointType& x, PointType& y) { return (x.curvature < y.curvature); }
 
+#define THREAD_SLEEP(ms) std::this_thread::sleep_for(std::chrono::milliseconds(ms))
+
 RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
     LOG(INFO) << "Ros Interface is Constructed";
     pub_odom_world_ = nh_.advertise<nav_msgs::Odometry>("/Odomtry", 10000);

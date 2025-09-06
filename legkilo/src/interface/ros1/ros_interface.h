@@ -22,7 +22,8 @@
 #include <tf/transform_datatypes.h>
 #include <unitree_legged_msgs/HighState.h>
 
-#include "common/common.hpp"
+#include "common/pcl_types.h"
+#include "common/sensor_types.hpp"
 #include "common/timer_utils.hpp"
 #include "common/yaml_helper.hpp"
 #include "interface/ros1/options.h"

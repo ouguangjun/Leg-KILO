@@ -1,4 +1,4 @@
-#include "core/eskf.h"
+#include "core/slam/eskf.h"
 
 namespace legkilo {
 

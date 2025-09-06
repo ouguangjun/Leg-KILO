@@ -29,8 +29,9 @@ which is included as part of this source code package.
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include "common/common.hpp"
 #include "common/math_utils.hpp"
+#include "common/pcl_types.h"
+#include "common/sensor_types.hpp"
 
 using namespace legkilo;
 

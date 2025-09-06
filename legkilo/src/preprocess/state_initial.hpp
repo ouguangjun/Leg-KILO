@@ -1,7 +1,7 @@
 #ifndef LEG_KILO_STATE_INITIAL_HPP
 #define LEG_KILO_STATE_INITIAL_HPP
 
-#include "common/common.hpp"
+#include "common/sensor_types.hpp"
 #include "core/slam/eskf.h"
 
 namespace legkilo {
