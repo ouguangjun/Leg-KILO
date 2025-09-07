@@ -26,7 +26,6 @@ find_package(Eigen3 REQUIRED)
 find_package(PCL 1.8 REQUIRED COMPONENTS common io)
 find_package(yaml-cpp REQUIRED)
 find_package(Glog REQUIRED)
-# find_package(TBB REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
     roscpp
@@ -45,7 +44,6 @@ include_directories(
     ${PCL_INCLUDE_DIRS}
     ${yaml-cpp_INCLUDE_DIRS}
     ${Glog_INCLUDE_DIRS}
-    # ${TBB_INCLUDE_DIRS}
 )
 
 catkin_package(
@@ -60,6 +58,7 @@ set(SOURCES
     src/preprocess/kinematics.cc
     
     # Core algorithms
+    src/core/slam/KILO.cc
     src/core/slam/voxel_map.cc
     src/core/slam/eskf.cc
     
@@ -73,7 +72,6 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${PCL_COMMON_LIBRARIES}
     ${PCL_IO_LIBRARIES}
-    # ${TBB_LIBRARIES}
     yaml-cpp
     glog
     gflags
@@ -85,4 +83,3 @@ add_executable(${PROJECT_NAME}_node
 target_link_libraries(${PROJECT_NAME}_node
     ${PROJECT_NAME}  
 )
-

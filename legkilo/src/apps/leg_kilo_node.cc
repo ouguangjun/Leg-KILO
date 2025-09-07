@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
         rate.sleep();
     }
     legkilo::options::FLAG_EXIT.store(true);
-    
+
     // Explicitly destroy ros_interface_node to ensure proper cleanup
     ros_interface_node.reset();
     LOG(INFO) << "RosInterface destroyed";

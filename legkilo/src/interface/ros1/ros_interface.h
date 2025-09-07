@@ -8,16 +8,13 @@
 #include <thread>
 
 #include "common/eigen_types.hpp"
-#include "common/math_utils.hpp"
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
 #include "interface/ros1/options.h"
 
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <pcl/filters/voxel_grid.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
@@ -27,13 +24,10 @@
 #include <unitree_legged_msgs/HighState.h>
 
 namespace legkilo {
-class ESKF;
 class Kinematics;
 class LidarProcessing;
-class StateInitial;
+class KILO;
 }  // namespace legkilo
-
-class VoxelMapManager;
 
 namespace legkilo {
 
@@ -61,13 +55,9 @@ class RosInterface {
     void kinematicImuCallBack(const unitree_legged_msgs::HighState::ConstPtr& msg);
     bool syncPackage();
     void initStateAndMap();
-    bool predictUpdateImu(const sensor_msgs::ImuPtr& imu);
-    bool predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j);
-    bool predictUpdateKinImu(const common::KinImuMeas& kin_imu);
+    // Predict/update handled inside core/slam/KILO
     void runReset();
-    void cloudLidarToWorld(const CloudPtr& cloud_lidar, CloudPtr& cloud_imu);
-    void pointLidarToImu(const PointType& point_lidar, PointType& point_imu);
-    void pointLidarToWorld(const PointType& point_lidar, PointType& point_world);
+    // Geometry handled inside core/slam/KILO
     void publishOdomTFPath(double end_time);
     void publishPointcloudWorld(double end_time);
     void publishPointcloudBody(double end_time);  // without undistort
@@ -100,13 +90,9 @@ class RosInterface {
     std::unique_ptr<std::thread> kinematic_thread_;
 
     // module
-    std::unique_ptr<ESKF> eskf_;
     std::unique_ptr<LidarProcessing> lidar_processing_;
-    // std::unique_ptr<VoxelGrid> voxel_grid_;
-    std::unique_ptr<StateInitial> state_initial_;
     std::unique_ptr<Kinematics> kinematics_;
-    std::unique_ptr<VoxelMapManager> map_manager_;
-    pcl::VoxelGrid<PointType> voxel_grid_;
+    std::unique_ptr<KILO> kilo_;
 
     // meaure
     std::deque<common::LidarScan> lidar_cache_;
@@ -129,20 +115,8 @@ class RosInterface {
     CloudPtr cloud_down_body_;
     CloudPtr cloud_down_world_;
 
-    // eskf
-    double gravity_;
-    double acc_norm_;
-    double last_state_predict_time_;
-    double last_state_update_time_;
-
-    // sensor param
-    Mat3D ext_rot_;
-    Vec3D ext_t_;
-    double satu_acc_;
-    double satu_gyr_;
-
     // LOG
-    size_t success_pts_size;
+    size_t success_pts_size = 0;
 
     // vis
     bool pub_joint_tf_enable_ = true;
