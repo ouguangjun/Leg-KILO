@@ -1,8 +1,10 @@
 ﻿#include "core/slam/KILO.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <utility>
+#include "common/math_utils.hpp"
 
 #include "common/glog_utils.hpp"
 #include "common/timer_utils.hpp"
@@ -145,7 +147,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
             loc_xyz[j] = cur_pt_var.point_w[j] / map_manager_->config_setting_.max_voxel_size_;
             if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
         }
-        VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
+        Eigen::Vector3i position((int)loc_xyz[0], (int)loc_xyz[1], (int)loc_xyz[2]);
         auto iter = map_manager_->voxel_map_.find(position);
         if (iter != map_manager_->voxel_map_.end()) {
             VoxelOctoTree* current_octo = iter->second;
@@ -154,26 +156,26 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
             double prob = 0;
             map_manager_->build_single_residual(cur_pt_var, current_octo, 0, is_success, prob, single_ptpl);
             if (!is_success) {
-                VOXEL_LOCATION near_position = position;
+                Eigen::Vector3i near_position = position;
                 if (loc_xyz[0] > (current_octo->voxel_center_[0] + current_octo->quater_length_)) {
-                    near_position.x = near_position.x + 1;
+                    near_position.x() = near_position.x() + 1;
                 } else if (loc_xyz[0] < (current_octo->voxel_center_[0] - current_octo->quater_length_)) {
-                    near_position.x = near_position.x - 1;
+                    near_position.x() = near_position.x() - 1;
                 }
                 if (loc_xyz[1] > (current_octo->voxel_center_[1] + current_octo->quater_length_)) {
-                    near_position.y = near_position.y + 1;
+                    near_position.y() = near_position.y() + 1;
                 } else if (loc_xyz[1] < (current_octo->voxel_center_[1] - current_octo->quater_length_)) {
-                    near_position.y = near_position.y - 1;
+                    near_position.y() = near_position.y() - 1;
                 }
                 if (loc_xyz[2] > (current_octo->voxel_center_[2] + current_octo->quater_length_)) {
-                    near_position.z = near_position.z + 1;
+                    near_position.z() = near_position.z() + 1;
                 } else if (loc_xyz[2] < (current_octo->voxel_center_[2] - current_octo->quater_length_)) {
-                    near_position.z = near_position.z - 1;
+                    near_position.z() = near_position.z() - 1;
                 }
                 auto iter_near = map_manager_->voxel_map_.find(near_position);
                 if (iter_near != map_manager_->voxel_map_.end()) {
                     map_manager_->build_single_residual(cur_pt_var, iter_near->second, 0, is_success, prob,
-                                                        single_ptpl);
+                                                                single_ptpl);
                 }
             }
             if (is_success) {

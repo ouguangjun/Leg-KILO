@@ -29,12 +29,10 @@ which is included as part of this source code package.
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include "common/eigen_types.hpp"
 #include "common/math_utils.hpp"
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
-
-#define VOXELMAP_HASH_P 116101
-#define VOXELMAP_MAX_N 10000000000
 
 static int voxel_plane_id = 0;
 
@@ -118,26 +116,6 @@ typedef struct VoxelPlane {
     }
 } VoxelPlane;
 
-class VOXEL_LOCATION {
-   public:
-    int64_t x, y, z;
-
-    VOXEL_LOCATION(int64_t vx = 0, int64_t vy = 0, int64_t vz = 0) : x(vx), y(vy), z(vz) {}
-
-    bool operator==(const VOXEL_LOCATION &other) const { return (x == other.x && y == other.y && z == other.z); }
-};
-
-// Hash value
-namespace std {
-template <>
-struct hash<VOXEL_LOCATION> {
-    int64_t operator()(const VOXEL_LOCATION &s) const {
-        using std::hash;
-        using std::size_t;
-        return ((((s.z) * VOXELMAP_HASH_P) % VOXELMAP_MAX_N + (s.y)) * VOXELMAP_HASH_P) % VOXELMAP_MAX_N + (s.x);
-    }
-};
-}  // namespace std
 
 struct DS_POINT {
     float xyz[3];
@@ -204,7 +182,7 @@ class VoxelMapManager {
     VoxelMapConfig config_setting_;
     int current_frame_id_ = 0;
     ros::Publisher voxel_map_pub_;
-    std::unordered_map<VOXEL_LOCATION, VoxelOctoTree *> voxel_map_;
+    std::unordered_map<Eigen::Vector3i, VoxelOctoTree *, legkilo::hash_vec<3>, legkilo::equal_vec<3>> voxel_map_;
 
     legkilo::CloudPtr feats_undistort_;
     legkilo::CloudPtr feats_down_body_;

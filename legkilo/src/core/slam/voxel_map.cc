@@ -37,25 +37,6 @@ void calcBodyCov(Eigen::Vector3d &pb, const float range_inc, const float degree_
     cov = direction * range_var * direction.transpose() + A * direction_var * A.transpose();
 }
 
-// void loadVoxelConfig(ros::NodeHandle &nh, VoxelMapConfig &voxel_config)
-// {
-//   nh.param<bool>("publish/pub_plane_en", voxel_config.is_pub_plane_map_, false);
-
-//   nh.param<int>("lio/max_layer", voxel_config.max_layer_, 1);
-//   nh.param<double>("lio/voxel_size", voxel_config.max_voxel_size_, 0.5);
-//   nh.param<double>("lio/min_eigen_value", voxel_config.planner_threshold_, 0.01);
-//   nh.param<double>("lio/sigma_num", voxel_config.sigma_num_, 3);
-//   nh.param<double>("lio/beam_err", voxel_config.beam_err_, 0.02);
-//   nh.param<double>("lio/dept_err", voxel_config.dept_err_, 0.05);
-//   nh.param<std::vector<int>>("lio/layer_init_num", voxel_config.layer_init_num_, std::vector<int>{5,5,5,5,5});
-//   nh.param<int>("lio/max_points_num", voxel_config.max_points_num_, 50);
-//   nh.param<int>("lio/max_iterations", voxel_config.max_iterations_, 5);
-
-//   nh.param<bool>("local_map/map_sliding_en", voxel_config.map_sliding_en, false);
-//   nh.param<int>("local_map/half_map_size", voxel_config.half_map_size, 100);
-//   nh.param<double>("local_map/sliding_thresh", voxel_config.sliding_thresh, 8);
-// }
-
 void VoxelOctoTree::init_plane(const std::vector<pointWithVar> &points, VoxelPlane *plane) {
     plane->plane_var_ = Eigen::Matrix<double, 6, 6>::Zero();
     plane->covariance_ = Eigen::Matrix3d::Zero();
@@ -329,12 +310,7 @@ void VoxelMapManager::BuildVoxelMap(const Eigen::Matrix3d rot, const Eigen::Matr
     uint plsize = input_points.size();
     for (uint i = 0; i < plsize; i++) {
         const pointWithVar p_v = input_points[i];
-        float loc_xyz[3];
-        for (int j = 0; j < 3; j++) {
-            loc_xyz[j] = p_v.point_w[j] / voxel_size;
-            if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
-        }
-        VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
+        Eigen::Vector3i position = legkilo::voxelKeyFloor(p_v.point_w, voxel_size);
         auto iter = voxel_map_.find(position);
         if (iter != voxel_map_.end()) {
             voxel_map_[position]->temp_points_.push_back(p_v);
@@ -344,9 +320,9 @@ void VoxelMapManager::BuildVoxelMap(const Eigen::Matrix3d rot, const Eigen::Matr
                 new VoxelOctoTree(max_layer, 0, layer_init_num[0], max_points_num, planer_threshold);
             voxel_map_[position] = octo_tree;
             voxel_map_[position]->quater_length_ = voxel_size / 4;
-            voxel_map_[position]->voxel_center_[0] = (0.5 + position.x) * voxel_size;
-            voxel_map_[position]->voxel_center_[1] = (0.5 + position.y) * voxel_size;
-            voxel_map_[position]->voxel_center_[2] = (0.5 + position.z) * voxel_size;
+            voxel_map_[position]->voxel_center_[0] = (0.5 + position[0]) * voxel_size;
+            voxel_map_[position]->voxel_center_[1] = (0.5 + position[1]) * voxel_size;
+            voxel_map_[position]->voxel_center_[2] = (0.5 + position[2]) * voxel_size;
             voxel_map_[position]->temp_points_.push_back(p_v);
             voxel_map_[position]->new_points_++;
             voxel_map_[position]->layer_init_num_ = layer_init_num;
@@ -364,12 +340,7 @@ void VoxelMapManager::UpdateVoxelMap(const std::vector<pointWithVar> &input_poin
     uint plsize = input_points.size();
     for (uint i = 0; i < plsize; i++) {
         const pointWithVar p_v = input_points[i];
-        float loc_xyz[3];
-        for (int j = 0; j < 3; j++) {
-            loc_xyz[j] = p_v.point_w[j] / voxel_size;
-            if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
-        }
-        VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
+        Eigen::Vector3i position = legkilo::voxelKeyFloor(p_v.point_w, voxel_size);
         auto iter = voxel_map_.find(position);
         if (iter != voxel_map_.end()) {
             voxel_map_[position]->UpdateOctoTree(p_v);
@@ -379,9 +350,9 @@ void VoxelMapManager::UpdateVoxelMap(const std::vector<pointWithVar> &input_poin
             voxel_map_[position] = octo_tree;
             voxel_map_[position]->layer_init_num_ = layer_init_num;
             voxel_map_[position]->quater_length_ = voxel_size / 4;
-            voxel_map_[position]->voxel_center_[0] = (0.5 + position.x) * voxel_size;
-            voxel_map_[position]->voxel_center_[1] = (0.5 + position.y) * voxel_size;
-            voxel_map_[position]->voxel_center_[2] = (0.5 + position.z) * voxel_size;
+            voxel_map_[position]->voxel_center_[0] = (0.5 + position[0]) * voxel_size;
+            voxel_map_[position]->voxel_center_[1] = (0.5 + position[1]) * voxel_size;
+            voxel_map_[position]->voxel_center_[2] = (0.5 + position[2]) * voxel_size;
             voxel_map_[position]->UpdateOctoTree(p_v);
         }
     }
@@ -585,16 +556,13 @@ bool VoxelMapManager::mapSliding() {
     // get global id now
     last_slide_position = position_last_;
     // double t_sliding_start = omp_get_wtime();
-    float loc_xyz[3];
-    for (int j = 0; j < 3; j++) {
-        loc_xyz[j] = position_last_[j] / config_setting_.max_voxel_size_;
-        if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
-    }
-    // VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);//discrete global
-    clearMemOutOfMap(
-        (int64_t)loc_xyz[0] + config_setting_.half_map_size, (int64_t)loc_xyz[0] - config_setting_.half_map_size,
-        (int64_t)loc_xyz[1] + config_setting_.half_map_size, (int64_t)loc_xyz[1] - config_setting_.half_map_size,
-        (int64_t)loc_xyz[2] + config_setting_.half_map_size, (int64_t)loc_xyz[2] - config_setting_.half_map_size);
+    Eigen::Vector3i k = legkilo::voxelKeyFloor(position_last_, config_setting_.max_voxel_size_);
+    int ix = k[0];
+    int iy = k[1];
+    int iz = k[2];
+    clearMemOutOfMap(ix + config_setting_.half_map_size, ix - config_setting_.half_map_size,
+                     iy + config_setting_.half_map_size, iy - config_setting_.half_map_size,
+                     iz + config_setting_.half_map_size, iz - config_setting_.half_map_size);
     // double t_sliding_end = omp_get_wtime();
     // std::cout<<RED<<"[DEBUG]: Map sliding using "<<t_sliding_end - t_sliding_start<<" secs"<<RESET<<"\n";
     return true;
@@ -606,9 +574,9 @@ void VoxelMapManager::clearMemOutOfMap(const int &x_max, const int &x_min, const
     // double delete_time = 0;
     // double last_delete_time = 0;
     for (auto it = voxel_map_.begin(); it != voxel_map_.end();) {
-        const VOXEL_LOCATION &loc = it->first;
+        const Eigen::Vector3i &loc = it->first;
         bool should_remove =
-            loc.x > x_max || loc.x < x_min || loc.y > y_max || loc.y < y_min || loc.z > z_max || loc.z < z_min;
+            loc[0] > x_max || loc[0] < x_min || loc[1] > y_max || loc[1] < y_min || loc[2] > z_max || loc[2] < z_min;
         if (should_remove) {
             // last_delete_time = omp_get_wtime();
             delete it->second;
