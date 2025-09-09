@@ -51,6 +51,25 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(ouster_ros::Point,
     (std::uint32_t, range, range)
 )
 // clang-format on
+namespace hesai_ros {
+  struct EIGEN_ALIGN16 Point {
+      PCL_ADD_POINT4D;
+      float intensity;
+      double timestamp;
+      uint16_t ring;
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  };
+}  // namespace hesai_ros
+// clang-format off
+POINT_CLOUD_REGISTER_POINT_STRUCT(hesai_ros::Point,
+    (float, x, x)
+    (float, y, y)
+    (float, z, z)
+    (float, intensity, intensity)
+    (double, timestamp, timestamp)
+    (std::uint16_t, ring, ring)
+)
+// clang-format on
 
 namespace legkilo {
 
@@ -81,6 +100,7 @@ class LidarProcessing {
    private:
     void velodyneHandler(const sensor_msgs::PointCloud2::ConstPtr& msg, common::LidarScan& lidar_scan);
     void ousterHander(const sensor_msgs::PointCloud2::ConstPtr& msg, common::LidarScan& lidar_scan);
+    void hesaiHandler(const sensor_msgs::PointCloud2::ConstPtr& msg, common::LidarScan& lidar_scan);
     CloudPtr cloud_pcl_;
     Config config_;
 };
