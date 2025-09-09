@@ -68,7 +68,7 @@ void KILO::initializeFromYaml(const std::string& config_file) {
     voxel_map_config.map_sliding_en = yaml_helper.get<bool>("map_sliding_en");
     voxel_map_config.half_map_size = yaml_helper.get<int>("half_map_size");
     voxel_map_config.sliding_thresh = yaml_helper.get<double>("sliding_thresh");
-    map_manager_ = std::make_unique<::VoxelMapManager>(voxel_map_config);
+    map_manager_ = std::make_unique<VoxelMapManager>(voxel_map_config);
 
     // Extrinsic
     std::vector<double> ext_t = yaml_helper.get<std::vector<double>>("extrinsic_T");
@@ -175,7 +175,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
                 auto iter_near = map_manager_->voxel_map_.find(near_position);
                 if (iter_near != map_manager_->voxel_map_.end()) {
                     map_manager_->build_single_residual(cur_pt_var, iter_near->second, 0, is_success, prob,
-                                                                single_ptpl);
+                                                        single_ptpl);
                 }
             }
             if (is_success) {

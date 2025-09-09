@@ -14,8 +14,8 @@
 namespace legkilo {
 class ESKF;
 class StateInitial;
+class VoxelMapManager;
 }  // namespace legkilo
-class VoxelMapManager;  // defined in core/slam/voxel_map.h (global namespace)
 
 namespace legkilo {
 class KILO {
@@ -49,7 +49,7 @@ class KILO {
     // Modules
     std::unique_ptr<ESKF> eskf_;
     std::unique_ptr<StateInitial> state_initial_;
-    std::unique_ptr<::VoxelMapManager> map_manager_;
+    std::unique_ptr<VoxelMapManager> map_manager_;
 
     // Config/state
     bool imu_mode_only_ = true;  // true: IMU only; false: Kin+IMU

@@ -86,11 +86,11 @@ constexpr auto less_vec2i = [](const Vec2i& v1, const Vec2i& v2) {
 };
 
 // Discretize a 3D point into voxel key by floor
-inline Eigen::Vector3i voxelKeyFloor(const Eigen::Vector3d &p_world, double voxel_size) {
+inline Eigen::Vector3i voxelKeyFloor(const Eigen::Vector3d& pt, double voxel_size) {
     Eigen::Vector3i key;
-    key[0] = static_cast<int>(std::floor(p_world[0] / voxel_size));
-    key[1] = static_cast<int>(std::floor(p_world[1] / voxel_size));
-    key[2] = static_cast<int>(std::floor(p_world[2] / voxel_size));
+    key[0] = static_cast<int>(std::floor(pt[0] / voxel_size));
+    key[1] = static_cast<int>(std::floor(pt[1] / voxel_size));
+    key[2] = static_cast<int>(std::floor(pt[2] / voxel_size));
     return key;
 }
 }  // namespace legkilo

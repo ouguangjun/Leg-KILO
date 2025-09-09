@@ -17,6 +17,8 @@ which is included as part of this source code package.
 
 #include "core/slam/voxel_map.h"
 
+namespace legkilo {
+
 void calcBodyCov(Eigen::Vector3d &pb, const float range_inc, const float degree_inc, Eigen::Matrix3d &cov) {
     if (pb[2] == 0) pb[2] = 0.0001;
     float range = sqrt(pb[0] * pb[0] + pb[1] * pb[1] + pb[2] * pb[2]);
@@ -590,3 +592,5 @@ void VoxelMapManager::clearMemOutOfMap(const int &x_max, const int &x_min, const
     // std::cout<<RED<<"[DEBUG]: Delete "<<delete_voxel_cout<<" root voxels"<<RESET<<"\n";
     // std::cout<<RED<<"[DEBUG]: Delete "<<delete_voxel_cout<<" voxels using "<<delete_time<<" s"<<RESET<<"\n";
 }
+
+}  // namespace legkilo

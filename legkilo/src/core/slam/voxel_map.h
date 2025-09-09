@@ -34,6 +34,8 @@ which is included as part of this source code package.
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
 
+namespace legkilo {
+
 static int voxel_plane_id = 0;
 
 typedef struct VoxelMapConfig {
@@ -116,7 +118,6 @@ typedef struct VoxelPlane {
     }
 } VoxelPlane;
 
-
 struct DS_POINT {
     float xyz[3];
     float intensity;
@@ -182,11 +183,11 @@ class VoxelMapManager {
     VoxelMapConfig config_setting_;
     int current_frame_id_ = 0;
     ros::Publisher voxel_map_pub_;
-    std::unordered_map<Eigen::Vector3i, VoxelOctoTree *, legkilo::hash_vec<3>, legkilo::equal_vec<3>> voxel_map_;
+    std::unordered_map<Eigen::Vector3i, VoxelOctoTree *, hash_vec<3>, equal_vec<3>> voxel_map_;
 
-    legkilo::CloudPtr feats_undistort_;
-    legkilo::CloudPtr feats_down_body_;
-    legkilo::CloudPtr feats_down_world_;
+    CloudPtr feats_undistort_;
+    CloudPtr feats_down_body_;
+    CloudPtr feats_down_world_;
 
     Eigen::Matrix3d extR_;
     Eigen::Vector3d extT_;
@@ -210,9 +211,9 @@ class VoxelMapManager {
 
     VoxelMapManager(VoxelMapConfig &config_setting) : config_setting_(config_setting) {
         current_frame_id_ = 0;
-        feats_undistort_.reset(new legkilo::PointCloudType());
-        feats_down_body_.reset(new legkilo::PointCloudType());
-        feats_down_world_.reset(new legkilo::PointCloudType());
+        feats_undistort_.reset(new PointCloudType());
+        feats_down_body_.reset(new PointCloudType());
+        feats_down_world_.reset(new PointCloudType());
     };
 
     void BuildVoxelMap(const Eigen::Matrix3d rot, const Eigen::Matrix3d rot_cov, const Eigen::Matrix3d pos_cov);
@@ -242,5 +243,7 @@ class VoxelMapManager {
     void mapJet(double v, double vmin, double vmax, uint8_t &r, uint8_t &g, uint8_t &b);
 };
 typedef std::shared_ptr<VoxelMapManager> VoxelMapManagerPtr;
+
+}  // namespace legkilo
 
 #endif  // VOXEL_MAP_H_

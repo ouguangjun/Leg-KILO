@@ -52,13 +52,13 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(ouster_ros::Point,
 )
 // clang-format on
 namespace hesai_ros {
-  struct EIGEN_ALIGN16 Point {
-      PCL_ADD_POINT4D;
-      float intensity;
-      double timestamp;
-      uint16_t ring;
-      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  };
+struct EIGEN_ALIGN16 Point {
+    PCL_ADD_POINT4D;
+    float intensity;
+    double timestamp;
+    uint16_t ring;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
 }  // namespace hesai_ros
 // clang-format off
 POINT_CLOUD_REGISTER_POINT_STRUCT(hesai_ros::Point,
