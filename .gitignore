@@ -1,2 +1,5 @@
 .vscode
 AGENTS.md
+
+legkilo/result/traj/*
+!legkilo/result/traj/.gitignore

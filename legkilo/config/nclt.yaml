@@ -71,5 +71,6 @@ chd_meas_noise: 0.1
 contact_meas_noise: 0.001
 lidar_point_meas_ratio: 10
 
-
+# vis
+save_traj_enable: false
 

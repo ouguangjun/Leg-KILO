@@ -35,6 +35,7 @@ RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
     path_world_.header.frame_id = "camera_init";
     path_world_.header.stamp = ros::Time::now();
     pose_path_.header.frame_id = "camera_init";
+
 }
 
 RosInterface::~RosInterface() {
@@ -99,6 +100,10 @@ bool RosInterface::initParamAndReset(const std::string& config_file) {
 
     /* Visualizaition*/
     pub_joint_tf_enable_ = yaml_helper.get<bool>("pub_joint_tf_enable");
+
+    /* Trajectory saving */
+    const bool save_traj_enable = yaml_helper.get<bool>("save_traj_enable", false);
+    if (save_traj_enable) { traj_saver_ = std::make_unique<TrajectorySaver>(); }
 
     return true;
 }
@@ -374,7 +379,7 @@ void RosInterface::run() {
     cloud_raw_ = measure_.lidar_scan_.cloud_;
     double end_time = measure_.lidar_scan_.lidar_end_time_;
     if (!kilo_->process(measure_, cloud_down_body_, cloud_down_world_, success_pts_size)) {
-        LOG(ERROR) << "KILO processing failed";
+        LOG(WARNING) << "KILO processing failed";
         return;
     }
 
@@ -385,6 +390,8 @@ void RosInterface::run() {
 
     this->publishOdomTFPath(end_time);
     this->publishPointcloudWorld(end_time);
+
+    if (traj_saver_) { traj_saver_->write(end_time, kilo_->getRot(), kilo_->getPos()); }
 
     return;
 }
