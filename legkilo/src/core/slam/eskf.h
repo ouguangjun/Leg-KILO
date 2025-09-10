@@ -69,8 +69,15 @@ class ESKF {
     State& state() { return state_; }
     const State& state() const { return state_; }
     void setState(const State& state) { state_ = state; }
-    Mat3D getRot() { return state_.rot_; }
-    Vec3D getPos() { return state_.pos_; }
+
+    Mat3D getRot() const { return state_.rot_; }
+    Vec3D getPos() const { return state_.pos_; }
+    Vec3D getVel() const { return state_.vel_; }
+
+    Mat3D getRotCov() const { return cov_.block<3, 3>(0, 0); }
+    Mat3D getPosCov() const { return cov_.block<3, 3>(3, 3); }
+    Mat3D getVelCov() const { return cov_.block<3, 3>(6, 6); }
+
 
     StateQ& Q() { return Q_; }
     const StateQ& Q() const { return Q_; }

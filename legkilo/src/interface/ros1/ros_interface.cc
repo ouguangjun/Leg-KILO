@@ -324,10 +324,10 @@ bool RosInterface::syncPackage() {
 void RosInterface::publishOdomTFPath(double end_time) {
     // odometry
     odom_world_.header.stamp = ros::Time().fromSec(end_time);
-    odom_world_.pose.pose.position.x = kilo_->position()(0);
-    odom_world_.pose.pose.position.y = kilo_->position()(1);
-    odom_world_.pose.pose.position.z = kilo_->position()(2);
-    q_eigen_ = Eigen::Quaterniond(kilo_->getRotMatrix());
+    odom_world_.pose.pose.position.x = kilo_->getPos()(0);
+    odom_world_.pose.pose.position.y = kilo_->getPos()(1);
+    odom_world_.pose.pose.position.z = kilo_->getPos()(2);
+    q_eigen_ = Eigen::Quaterniond(kilo_->getRot());
     odom_world_.pose.pose.orientation.w = q_eigen_.w();
     odom_world_.pose.pose.orientation.x = q_eigen_.x();
     odom_world_.pose.pose.orientation.y = q_eigen_.y();
@@ -373,7 +373,6 @@ void RosInterface::run() {
 
     cloud_raw_ = measure_.lidar_scan_.cloud_;
     double end_time = measure_.lidar_scan_.lidar_end_time_;
-    // Delegate odometry to KILO (initialization, downsampling, predict/update, map update)
     if (!kilo_->process(measure_, cloud_down_body_, cloud_down_world_, success_pts_size)) {
         LOG(ERROR) << "KILO processing failed";
         return;

@@ -83,9 +83,8 @@ void KILO::initializeFromYaml(const std::string& config_file) {
     voxel_grid_.setLeafSize(voxel_grid_resolution, voxel_grid_resolution, voxel_grid_resolution);
 }
 
-const Vec3D& KILO::position() const { return eskf_->state().pos_; }
-const Mat3D& KILO::rotation() const { return eskf_->state().rot_; }
-Mat3D KILO::getRotMatrix() const { return eskf_->getRot(); }
+Vec3D KILO::getPos() const { return eskf_->getPos(); }
+Mat3D KILO::getRot() const { return eskf_->getRot(); }
 
 void KILO::cloudLidarToWorld(const CloudPtr& cloud_lidar, CloudPtr& cloud_world) {
     cloud_world->clear();
@@ -98,7 +97,7 @@ void KILO::cloudLidarToWorld(const CloudPtr& cloud_lidar, CloudPtr& cloud_world)
 inline void KILO::pointLidarToWorld(const PointType& point_lidar, PointType& point_world) {
     Eigen::Vector3d pt_lidar(point_lidar.x, point_lidar.y, point_lidar.z);
     Eigen::Vector3d pt_imu = ext_rot_ * pt_lidar + ext_t_;
-    Eigen::Vector3d pt_world = eskf_->state().rot_ * pt_imu + eskf_->state().pos_;
+    Eigen::Vector3d pt_world = eskf_->getRot() * pt_imu + eskf_->getPos();
 
     point_world.x = static_cast<float>(pt_world(0));
     point_world.y = static_cast<float>(pt_world(1));
@@ -127,7 +126,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
         pointWithVar& cur_pt_var = pv_list[i];
         cur_pt_var.point_b << cur_pt.x, cur_pt.y, cur_pt.z;
         cur_pt_var.point_i = ext_rot_ * cur_pt_var.point_b + ext_t_;
-        cur_pt_var.point_w = eskf_->state().rot_ * cur_pt_var.point_i + eskf_->state().pos_;
+        cur_pt_var.point_w = eskf_->getRot() * cur_pt_var.point_i + eskf_->getPos();
         cloud_down_world.points[idx_i + i].x = cur_pt_var.point_w(0);
         cloud_down_world.points[idx_i + i].y = cur_pt_var.point_w(1);
         cloud_down_world.points[idx_i + i].z = cur_pt_var.point_w(2);
@@ -135,11 +134,11 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
         calcBodyCov(cur_pt_var.point_b, map_manager_->config_setting_.dept_err_,
                     map_manager_->config_setting_.beam_err_, cur_pt_var.body_var);
         cur_pt_var.point_crossmat << SKEW_SYM_MATRIX(cur_pt_var.point_i);
-        Mat3D rot_extR = eskf_->state().rot_ * ext_rot_;
-        Mat3D rot_crossmat = eskf_->state().rot_ * cur_pt_var.point_crossmat;
+        Mat3D rot_extR = eskf_->getRot() * ext_rot_;
+        Mat3D rot_crossmat = eskf_->getRot() * cur_pt_var.point_crossmat;
         cur_pt_var.var = rot_extR * cur_pt_var.body_var * rot_extR.transpose() +
-                         rot_crossmat * eskf_->cov().block<3, 3>(0, 0) * rot_crossmat.transpose() +
-                         eskf_->cov().block<3, 3>(3, 3);
+                         rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() +
+                         eskf_->getPosCov();
 
         // 2.2 residual
         float loc_xyz[3];
@@ -195,7 +194,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
         obs_shared.pt_z.resize(effect_num);
         for (size_t k = 0; k < effect_num; ++k) {
             Vec3D crossmat_rotT_u =
-                ptpl_list[k].point_crossmat_ * eskf_->state().rot_.transpose() * ptpl_list[k].normal_;
+                ptpl_list[k].point_crossmat_ * eskf_->getRot().transpose() * ptpl_list[k].normal_;
             obs_shared.pt_h.row(k) << crossmat_rotT_u(0), crossmat_rotT_u(1), crossmat_rotT_u(2),
                 ptpl_list[k].normal_(0), ptpl_list[k].normal_(1), ptpl_list[k].normal_(2);
 
@@ -205,8 +204,8 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
             J_nq.block<1, 3>(0, 0) = ptpl_list[k].point_w_ - ptpl_list[k].center_;
             J_nq.block<1, 3>(0, 3) = -ptpl_list[k].normal_;
             Mat3D var;
-            var = eskf_->state().rot_ * ext_rot_ * ptpl_list[k].body_cov_ * ext_rot_.transpose() *
-                  eskf_->state().rot_.transpose();
+            var = eskf_->getRot() * ext_rot_ * ptpl_list[k].body_cov_ * ext_rot_.transpose() *
+                  eskf_->getRot().transpose();
             double single_l = J_nq * ptpl_list[k].plane_var_ * J_nq.transpose();
             obs_shared.pt_R(k) = eskf_->config().lidar_point_meas_ratio *
                                  (single_l + ptpl_list[k].normal_.transpose() * var * ptpl_list[k].normal_);
@@ -219,17 +218,17 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
     if (eskf_update) {
         for (size_t i = 0; i < points_size; ++i) {
             // recompute world with updated state and update var
-            pv_list[i].point_w = eskf_->state().rot_ * pv_list[i].point_i + eskf_->state().pos_;
+            pv_list[i].point_w = eskf_->getRot() * pv_list[i].point_i + eskf_->getPos();
             cloud_down_world.points[idx_i + i].x = pv_list[i].point_w(0);
             cloud_down_world.points[idx_i + i].y = pv_list[i].point_w(1);
             cloud_down_world.points[idx_i + i].z = pv_list[i].point_w(2);
             cloud_down_world.points[idx_i + i].intensity = 255;
 
-            Mat3D rot_extR = eskf_->state().rot_ * ext_rot_;
-            Mat3D rot_crossmat = eskf_->state().rot_ * pv_list[i].point_crossmat;
+            Mat3D rot_extR = eskf_->getRot() * ext_rot_;
+            Mat3D rot_crossmat = eskf_->getRot() * pv_list[i].point_crossmat;
             pv_list[i].var = rot_extR * pv_list[i].body_var * rot_extR.transpose() +
-                             rot_crossmat * eskf_->cov().block<3, 3>(0, 0) * rot_crossmat.transpose() +
-                             eskf_->cov().block<3, 3>(3, 3);
+                             rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() +
+                             eskf_->getPosCov();
         }
     }
     map_manager_->UpdateVoxelMap(pv_list);
@@ -300,11 +299,11 @@ bool KILO::predictUpdateKinImu(const common::KinImuMeas& kin_imu) {
 
             Vec3D w_skew_pos_vel = w_skew * foot_pos + foot_vel;
 
-            obs_shared.ki_h.block<3, 3>(6 + 3 * idx, 0) = -eskf_->state().rot_ * SKEW_SYM_MATRIX(w_skew_pos_vel);
+            obs_shared.ki_h.block<3, 3>(6 + 3 * idx, 0) = -eskf_->getRot() * SKEW_SYM_MATRIX(w_skew_pos_vel);
             obs_shared.ki_h.block<3, 3>(6 + 3 * idx, 6) = Mat3D::Identity();
-            obs_shared.ki_h.block<3, 3>(6 + 3 * idx, 21) = -eskf_->state().rot_ * SKEW_SYM_MATRIX(foot_pos);
+            obs_shared.ki_h.block<3, 3>(6 + 3 * idx, 21) = -eskf_->getRot() * SKEW_SYM_MATRIX(foot_pos);
 
-            obs_shared.ki_z.block<3, 1>(6 + 3 * idx, 0) = -eskf_->state().vel_ - eskf_->state().rot_ * w_skew_pos_vel;
+            obs_shared.ki_z.block<3, 1>(6 + 3 * idx, 0) = -eskf_->getVel() - eskf_->getRot() * w_skew_pos_vel;
 
             obs_shared.ki_R.block<3, 1>(6 + 3 * idx, 0) << eskf_->config().kin_meas_noise,
                 eskf_->config().kin_meas_noise, eskf_->config().kin_meas_noise;
@@ -340,8 +339,7 @@ bool KILO::process(common::MeasGroup measure, CloudPtr& cloud_down_body_out, Clo
         this->cloudLidarToWorld(cloud_raw, cloud_down_world_out);
         map_manager_->feats_down_body_ = cloud_raw;
         map_manager_->feats_down_world_ = cloud_down_world_out;
-        map_manager_->BuildVoxelMap(eskf_->state().rot_, eskf_->cov().block<3, 3>(0, 0),
-                                    eskf_->cov().block<3, 3>(3, 3));
+        map_manager_->BuildVoxelMap(eskf_->getRot(), eskf_->getRotCov(), eskf_->getPosCov());
 
         auto gravity_vec = eskf_->state().grav_;
         auto bw = eskf_->state().bw_;

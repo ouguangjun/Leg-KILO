@@ -28,10 +28,8 @@ class KILO {
     bool process(common::MeasGroup measure, CloudPtr& cloud_down_body_out, CloudPtr& cloud_down_world_out,
                  size_t& success_pts_size_out);
 
-    // Accessors for pose/state used by ROS publishers.
-    const Vec3D& position() const;
-    const Mat3D& rotation() const;  // body->world
-    Mat3D getRotMatrix() const;     // convenience (proxy to ESKF::getRot())
+    Vec3D getPos() const;
+    Mat3D getRot() const; 
 
    private:
     // Initialization and helpers
