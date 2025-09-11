@@ -10,8 +10,8 @@
 #include <sstream>
 #include <string>
 
-#include <boost/filesystem.hpp>
 #include <glog/logging.h>
+#include <boost/filesystem.hpp>
 
 #include "common/eigen_types.hpp"
 
@@ -45,8 +45,8 @@ class TrajectorySaver {
         std::lock_guard<std::mutex> lk(mutex_);
         Eigen::Quaterniond q(rot);
         // TUM: timestamp tx ty tz qx qy qz qw
-        ofs_ << std::fixed << std::setprecision(9) << timestamp << " " << pos.x() << " " << pos.y() << " "
-             << pos.z() << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << "\n";
+        ofs_ << std::fixed << std::setprecision(9) << timestamp << " " << pos.x() << " " << pos.y() << " " << pos.z()
+             << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << "\n";
     }
 
     void flush() {
@@ -89,4 +89,3 @@ class TrajectorySaver {
 }  // namespace legkilo
 
 #endif  // LEG_KILO_COMMON_TRAJECTORY_SAVER_HPP_
-

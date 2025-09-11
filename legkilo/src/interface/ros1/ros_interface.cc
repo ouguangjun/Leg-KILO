@@ -35,7 +35,6 @@ RosInterface::RosInterface(ros::NodeHandle& nh) : nh_(nh) {
     path_world_.header.frame_id = "camera_init";
     path_world_.header.stamp = ros::Time::now();
     pose_path_.header.frame_id = "camera_init";
-
 }
 
 RosInterface::~RosInterface() {
@@ -104,6 +103,12 @@ bool RosInterface::initParamAndReset(const std::string& config_file) {
     /* Trajectory saving */
     const bool save_traj_enable = yaml_helper.get<bool>("save_traj_enable", false);
     if (save_traj_enable) { traj_saver_ = std::make_unique<TrajectorySaver>(); }
+
+    /* PCD saving */
+    const bool save_pcd_enable = yaml_helper.get<bool>("save_pcd_enable", false);
+    const int pcd_frames_per_file = yaml_helper.get<int>("pcd_frames_per_file", 100);
+    const double pcd_voxel_leaf = yaml_helper.get<double>("pcd_voxel_leaf_size", 0.1);
+    if (save_pcd_enable) { pcd_saver_ = std::make_unique<PcdSaver>(pcd_frames_per_file, pcd_voxel_leaf); }
 
     return true;
 }
@@ -392,6 +397,8 @@ void RosInterface::run() {
     this->publishPointcloudWorld(end_time);
 
     if (traj_saver_) { traj_saver_->write(end_time, kilo_->getRot(), kilo_->getPos()); }
+
+    if (pcd_saver_) { pcd_saver_->save(cloud_down_world_); }
 
     return;
 }

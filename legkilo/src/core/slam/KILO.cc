@@ -137,8 +137,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
         Mat3D rot_extR = eskf_->getRot() * ext_rot_;
         Mat3D rot_crossmat = eskf_->getRot() * cur_pt_var.point_crossmat;
         cur_pt_var.var = rot_extR * cur_pt_var.body_var * rot_extR.transpose() +
-                         rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() +
-                         eskf_->getPosCov();
+                         rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() + eskf_->getPosCov();
 
         // 2.2 residual
         float loc_xyz[3];
@@ -193,8 +192,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
         obs_shared.pt_R.resize(effect_num);
         obs_shared.pt_z.resize(effect_num);
         for (size_t k = 0; k < effect_num; ++k) {
-            Vec3D crossmat_rotT_u =
-                ptpl_list[k].point_crossmat_ * eskf_->getRot().transpose() * ptpl_list[k].normal_;
+            Vec3D crossmat_rotT_u = ptpl_list[k].point_crossmat_ * eskf_->getRot().transpose() * ptpl_list[k].normal_;
             obs_shared.pt_h.row(k) << crossmat_rotT_u(0), crossmat_rotT_u(1), crossmat_rotT_u(2),
                 ptpl_list[k].normal_(0), ptpl_list[k].normal_(1), ptpl_list[k].normal_(2);
 
@@ -227,8 +225,7 @@ bool KILO::predictUpdatePoint(double current_time, size_t idx_i, size_t idx_j, c
             Mat3D rot_extR = eskf_->getRot() * ext_rot_;
             Mat3D rot_crossmat = eskf_->getRot() * pv_list[i].point_crossmat;
             pv_list[i].var = rot_extR * pv_list[i].body_var * rot_extR.transpose() +
-                             rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() +
-                             eskf_->getPosCov();
+                             rot_crossmat * eskf_->getRotCov() * rot_crossmat.transpose() + eskf_->getPosCov();
         }
     }
     map_manager_->UpdateVoxelMap(pv_list);

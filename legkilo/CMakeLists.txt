@@ -23,7 +23,7 @@ ProcessorCount(CPU_N)
 message(INFO "Processer number:  ${CPU_N}")
 
 find_package(Eigen3 REQUIRED)
-find_package(PCL 1.8 REQUIRED COMPONENTS common io)
+find_package(PCL 1.8 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Glog REQUIRED)
 
@@ -72,6 +72,7 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${PCL_COMMON_LIBRARIES}
     ${PCL_IO_LIBRARIES}
+    ${PCL_FILTERS_LIBRARIES}
     yaml-cpp
     glog
     gflags

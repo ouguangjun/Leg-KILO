@@ -78,7 +78,6 @@ class ESKF {
     Mat3D getPosCov() const { return cov_.block<3, 3>(3, 3); }
     Mat3D getVelCov() const { return cov_.block<3, 3>(6, 6); }
 
-
     StateQ& Q() { return Q_; }
     const StateQ& Q() const { return Q_; }
     void setQ(const StateQ& Q) { Q_ = Q; }

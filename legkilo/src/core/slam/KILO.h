@@ -29,7 +29,7 @@ class KILO {
                  size_t& success_pts_size_out);
 
     Vec3D getPos() const;
-    Mat3D getRot() const; 
+    Mat3D getRot() const;
 
    private:
     // Initialization and helpers

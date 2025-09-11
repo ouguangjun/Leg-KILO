@@ -3,3 +3,5 @@ AGENTS.md
 
 legkilo/result/traj/*
 !legkilo/result/traj/.gitignore
+legkilo/result/PCD/*
+!legkilo/result/PCD/.gitignore

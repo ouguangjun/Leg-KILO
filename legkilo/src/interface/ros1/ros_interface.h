@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "common/eigen_types.hpp"
+#include "common/pcd_saver.hpp"
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
 #include "common/trajectory_saver.hpp"
@@ -95,6 +96,7 @@ class RosInterface {
     std::unique_ptr<Kinematics> kinematics_;
     std::unique_ptr<KILO> kilo_;
     std::unique_ptr<TrajectorySaver> traj_saver_;
+    std::unique_ptr<PcdSaver> pcd_saver_;
 
     // meaure
     std::deque<common::LidarScan> lidar_cache_;
