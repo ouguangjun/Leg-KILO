@@ -56,10 +56,7 @@ class RosInterface {
     void imuCallBack(const sensor_msgs::Imu::ConstPtr& msg);
     void kinematicImuCallBack(const unitree_legged_msgs::HighState::ConstPtr& msg);
     bool syncPackage();
-    void initStateAndMap();
-    // Predict/update handled inside core/slam/KILO
     void runReset();
-    // Geometry handled inside core/slam/KILO
     void publishOdomTFPath(double end_time);
     void publishPointcloudWorld(double end_time);
     void publishPointcloudBody(double end_time);  // without undistort

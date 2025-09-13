@@ -1,5 +1,5 @@
-﻿#ifndef LEG_KILO_COMMON_TRAJECTORY_SAVER_HPP_
-#define LEG_KILO_COMMON_TRAJECTORY_SAVER_HPP_
+﻿#ifndef LEG_KILO_TRAJECTORY_SAVER_HPP
+#define LEG_KILO_TRAJECTORY_SAVER_HPP
 
 #include <chrono>
 #include <ctime>
@@ -68,13 +68,7 @@ class TrajectorySaver {
     std::string makeFilepathWithNow(const std::string& dir) const {
         const auto now = std::chrono::system_clock::now();
         std::time_t t = std::chrono::system_clock::to_time_t(now);
-        std::tm tm_buf;
-#if defined(_WIN32)
-        localtime_s(&tm_buf, &t);
-        const std::tm* tm_ptr = &tm_buf;
-#else
         const std::tm* tm_ptr = std::localtime(&t);
-#endif
         std::ostringstream oss;
         oss << std::put_time(tm_ptr, "%Y%m%d_%H%M%S");
         return (fs::path(dir) / (std::string("traj_") + oss.str() + ".tum")).string();
@@ -88,4 +82,4 @@ class TrajectorySaver {
 
 }  // namespace legkilo
 
-#endif  // LEG_KILO_COMMON_TRAJECTORY_SAVER_HPP_
+#endif  // LEG_KILO_TRAJECTORY_SAVER_HPP

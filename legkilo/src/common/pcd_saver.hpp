@@ -1,12 +1,16 @@
-﻿#ifndef LEG_KILO_COMMON_PCD_SAVER_HPP_
-#define LEG_KILO_COMMON_PCD_SAVER_HPP_
+﻿#ifndef LEG_KILO_PCD_SAVER_HPP
+#define LEG_KILO_PCD_SAVER_HPP
 
 #include <chrono>
+#include <condition_variable>
 #include <ctime>
+#include <deque>
 #include <iomanip>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include <glog/logging.h>
 #include <pcl/filters/voxel_grid.h>
@@ -29,17 +33,26 @@ class PcdSaver {
         if (voxel_leaf_size_ <= 0.0) voxel_leaf_size_ = 0.1;
         initSessionDir();
         buffer_.reset(new PointCloudType);
+        worker_ = std::thread(&PcdSaver::workerLoop, this);
     }
 
-    ~PcdSaver() { flushSaveRemaining(); }
+    ~PcdSaver() {
+        {
+            std::lock_guard<std::mutex> lk(mutex_);
+            stopping_ = true;
+        }
+        cv_.notify_one();
+        if (worker_.joinable()) worker_.join();
+    }
 
     // Save cloud as binary-compressed PCD with auto-increment id.
     void save(const CloudConstPtr& cloud) {
         if (!cloud || cloud->empty()) return;
-        // Accumulate
-        *buffer_ += *cloud;
-        ++frames_in_buffer_;
-        if (frames_in_buffer_ >= frames_per_file_) { downsampleAndSave(); }
+        {
+            std::lock_guard<std::mutex> lk(mutex_);
+            queue_.push_back(cloud);
+        }
+        cv_.notify_one();
     }
 
    private:
@@ -63,13 +76,7 @@ class PcdSaver {
     std::string nowString() const {
         const auto now = std::chrono::system_clock::now();
         std::time_t t = std::chrono::system_clock::to_time_t(now);
-        std::tm tm_buf;
-#if defined(_WIN32)
-        localtime_s(&tm_buf, &t);
-        const std::tm* tm_ptr = &tm_buf;
-#else
         const std::tm* tm_ptr = std::localtime(&t);
-#endif
         std::ostringstream oss;
         oss << std::put_time(tm_ptr, "%Y%m%d_%H%M%S");
         return oss.str();
@@ -79,6 +86,29 @@ class PcdSaver {
         std::ostringstream oss;
         oss << "cloud_" << std::setfill('0') << std::setw(6) << id << ".pcd";
         return oss.str();
+    }
+
+    void workerLoop() {
+        while (true) {
+            std::deque<CloudConstPtr> local_queue;
+            {
+                std::unique_lock<std::mutex> lk(mutex_);
+                cv_.wait(lk, [&] { return stopping_ || !queue_.empty(); });
+                local_queue.swap(queue_);
+            }
+
+            for (const auto& cloud : local_queue) {
+                if (!cloud || cloud->empty()) continue;
+                *buffer_ += *cloud;
+                ++frames_in_buffer_;
+                if (frames_in_buffer_ >= frames_per_file_) { downsampleAndSave(); }
+            }
+
+            if (stopping_) {
+                if (buffer_ && !buffer_->empty()) { downsampleAndSave(); }
+                break;
+            }
+        }
     }
 
     void downsampleAndSave() {
@@ -104,8 +134,6 @@ class PcdSaver {
         ++file_id_;
     }
 
-    void flushSaveRemaining() { downsampleAndSave(); }
-
    private:
     std::string session_dir_;
     size_t file_id_ = 0;
@@ -113,8 +141,15 @@ class PcdSaver {
     double voxel_leaf_size_ = 0.1;
     int frames_in_buffer_ = 0;
     CloudPtr buffer_;
+
+    // threading
+    std::thread worker_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    std::deque<CloudConstPtr> queue_;
+    bool stopping_ = false;
 };
 
 }  // namespace legkilo
 
-#endif  // LEG_KILO_COMMON_PCD_SAVER_HPP_
+#endif  // LEG_KILO_PCD_SAVER_HPP
