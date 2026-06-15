@@ -1,8 +1,8 @@
-> 🚀 **Looking for a more complete & practically deployable SLAM system?** 
+> 🚀 **Looking for a more complete SLAM system?** 
 >
-> Check out **[kilo-map](https://github.com/ouguangjun/kilo-map)** — a fully-featured, production-ready SLAM framework built upon Leg-KILO's core methodology, with broader scene coverage, enhanced robustness, and out-of-the-box usability for real-world robotics applications.
-
-> check out this link for more details: https://github.com/ouguangjun/kilo-map
+> Check out **[kilo-map](https://github.com/ouguangjun/kilo-map)** — an extended SLAM framework built upon Leg-KILO's core methodology, adding backend optimization and broader scene support for practical robotics applications.
+>
+> ⭐ check out this link **[https://github.com/ouguangjun/kilo-map](https://github.com/ouguangjun/kilo-map)**
 
 <h1 align="center">Leg-KILO 2.0</h1>
 <h2 align="center">Robust Kinematic-IMU-Lidar Odometry</h2>
