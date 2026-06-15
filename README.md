@@ -1,3 +1,9 @@
+> 🚀 **Looking for a more complete & practically deployable SLAM system?** 
+>
+> Check out **[kilo-map](https://github.com/ouguangjun/kilo-map)** — a fully-featured, production-ready SLAM framework built upon Leg-KILO's core methodology, with broader scene coverage, enhanced robustness, and out-of-the-box usability for real-world robotics applications.
+
+> check out this link for more details: https://github.com/ouguangjun/kilo-map
+
 <h1 align="center">Leg-KILO 2.0</h1>
 <h2 align="center">Robust Kinematic-IMU-Lidar Odometry</h2>
 
@@ -11,6 +17,8 @@
     <img src="https://img.shields.io/badge/Paper-LegKILO1.0-brightgreen" alt="LegKILO 1.0 Paper" />
   </a>
 </p>
+
+
 
 
 Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state Kalman filter odometry system. Both the methodology and implementation differ from the original paper. The new version of Leg‑KILO is more efficient and lightweight. Key features include:
