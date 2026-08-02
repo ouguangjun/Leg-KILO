@@ -1,11 +1,12 @@
-> 🚀 **Looking for a more complete SLAM system?** 
+> ℹ️ **Project update:** [kilo-map](https://github.com/ouguangjun/kilo-map) has been manually merged into Leg-KILO. The two projects now provide essentially the same functionality.
 >
-> Check out **[kilo-map](https://github.com/ouguangjun/kilo-map)** — an extended SLAM framework built upon Leg-KILO's core methodology, adding backend optimization and broader scene support for practical robotics applications.
+> To view or use the previous **Leg-KILO 2.0** implementation, switch to the `legkilo-v2` branch:
 >
-> ⭐ check out this link **[https://github.com/ouguangjun/kilo-map](https://github.com/ouguangjun/kilo-map)**
+> ```bash
+> git checkout legkilo-v2
+> ```
 
-<h1 align="center">Leg-KILO 2.0</h1>
-<h2 align="center">Robust Kinematic-IMU-Lidar Odometry</h2>
+<h2 align="center">Robust Lidar-based Odometry and Mapping</h2>
 
 <p align="center">
   <!-- Bilibili 视频 -->
@@ -169,4 +170,3 @@ We gratefully acknowledge the following open-source projects:
 # 免责声明
 
 本项目为个人学习项目，出于兴趣分享，学术上不必过度细究😄
-
