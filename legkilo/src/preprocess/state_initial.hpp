@@ -1,119 +1,121 @@
+// SPDX-License-Identifier: MIT
+// @file state_initial.hpp
+// @brief State initialization using IMU or Kin+IMU.
+// @author Ou Guangjun
+// @created 2025-04-26
+// @maintainer ouguangjun98@gmail.com
 #ifndef LEG_KILO_STATE_INITIAL_HPP
 #define LEG_KILO_STATE_INITIAL_HPP
 
+#include <algorithm>
+#include <deque>
+
+#include "common/math_utils.hpp"
 #include "common/sensor_types.hpp"
-#include "core/slam/eskf.h"
 
 namespace legkilo {
 
-using namespace common;
+enum class InitType { Identity = 1, GravityAlignment = 2 };
 
 class StateInitial {
    public:
+    struct Config {
+        double gravity = 9.81;
+        size_t min_samples = 1;
+        InitType init_type = InitType::Identity;
+    };
+
+    explicit StateInitial(const Config& cfg) : cfg_(cfg) { reset(); }
     virtual ~StateInitial() = default;
-    virtual void processing(MeasGroup& measure, ESKF& eskf) = 0;
-    inline double getAccNorm() const { return acc_norm_; }
+    virtual size_t ingest(const common::MeasGroup& meas) = 0;
+
+    bool isReady() const { return N_ >= static_cast<int>(cfg_.min_samples); }
+    void reset() {
+        N_ = 0;
+        mean_acc_.setZero();
+        mean_gyr_.setZero();
+        acc_norm_ = 0.0;
+    }
+
+    virtual double accNorm() const { return acc_norm_; }
+    virtual Eigen::Vector3d gravityVec() const {
+        if (cfg_.init_type == InitType::GravityAlignment) { return Eigen::Vector3d(0, 0, -cfg_.gravity); }
+        if (acc_norm_ <= 0.0) return Eigen::Vector3d(0, 0, -cfg_.gravity);
+        return -cfg_.gravity * (mean_acc_ / acc_norm_);
+    }
+    virtual Eigen::Vector3d gyroBias() const { return mean_gyr_; }
+    virtual Eigen::Matrix3d initRotation() const {
+        if (cfg_.init_type == InitType::GravityAlignment && acc_norm_ > 0.0) {
+            Eigen::Vector3d acc_dir = -mean_acc_.normalized();
+            Eigen::Vector3d g_world(0, 0, -1.0);
+            Eigen::Quaterniond q0 = Eigen::Quaterniond::FromTwoVectors(acc_dir, g_world);
+            q0.normalize();
+            return q0.toRotationMatrix();
+        }
+        return Eigen::Matrix3d::Identity();
+    }
 
    protected:
-    explicit StateInitial(double G_m_s2) : G_m_s2_(G_m_s2){};
+    inline void updateMean(const Eigen::Vector3d& acc, const Eigen::Vector3d& gyr) {
+        N_ += 1;
+        const double invN = 1.0 / static_cast<double>(N_);
+        mean_acc_ += (acc - mean_acc_) * invN;
+        mean_gyr_ += (gyr - mean_gyr_) * invN;
+    }
 
-    int N = 0;
-    bool b_first_frame_ = true;
-    double G_m_s2_ = 9.81;
-    double acc_norm_;
-    Vec3D mean_acc_;
-    Vec3D mean_gyr_;
-    Vec3D cov_acc_;
-    Vec3D cov_gyr_;
+    Config cfg_;
+    int N_ = 0;
+    Eigen::Vector3d mean_acc_ = Eigen::Vector3d::Zero();
+    Eigen::Vector3d mean_gyr_ = Eigen::Vector3d::Zero();
+    double acc_norm_ = 0.0;
 };
 
 class StateInitialByImu : public StateInitial {
    public:
-    explicit StateInitialByImu(double G_m_s2) : StateInitial(G_m_s2) {}
-
-    void processing(MeasGroup& measure, ESKF& eskf) override {
-        Vec3D cur_acc;
-        Vec3D cur_gyr;
-
-        if (b_first_frame_) {
-            b_first_frame_ = false;
-            N = 1;
-            const auto& imu_acc = measure.imus_.front()->linear_acceleration;
-            const auto& imu_gyr = measure.imus_.front()->angular_velocity;
-            mean_acc_ << imu_acc.x, imu_acc.y, imu_acc.z;
-            mean_gyr_ << imu_gyr.x, imu_gyr.y, imu_gyr.z;
-            cov_acc_.setZero();
-            cov_gyr_.setZero();
+    using StateInitial::StateInitial;
+    size_t ingest(const common::MeasGroup& meas) override {
+        size_t added = 0;
+        for (const auto& imu : meas.imus_) {
+            const auto& a = imu->linear_acceleration;
+            const auto& g = imu->angular_velocity;
+            const Eigen::Vector3d acc(a.x, a.y, a.z);
+            const Eigen::Vector3d gyr(g.x, g.y, g.z);
+            updateMean(acc, gyr);
+            ++added;
         }
-
-        for (const auto& imu : measure.imus_) {
-            const auto& imu_acc = imu->linear_acceleration;
-            const auto& imu_gyr = imu->angular_velocity;
-            cur_acc << imu_acc.x, imu_acc.y, imu_acc.z;
-            cur_gyr << imu_gyr.x, imu_gyr.y, imu_gyr.z;
-
-            mean_acc_ += (cur_acc - mean_acc_) / N;
-            mean_gyr_ += (cur_gyr - mean_gyr_) / N;
-
-            cov_acc_ = cov_acc_ * (N - 1.0) / N +
-                       (cur_acc - mean_acc_).cwiseProduct(cur_acc - mean_acc_) * (N - 1.0) / (N * N);
-            cov_gyr_ = cov_gyr_ * (N - 1.0) / N +
-                       (cur_gyr - mean_gyr_).cwiseProduct(cur_gyr - mean_gyr_) * (N - 1.0) / (N * N);
-
-            N++;
-        }
-        acc_norm_ = mean_acc_.norm();
-        eskf.state().grav_ = -mean_acc_ / acc_norm_ * G_m_s2_;
-        eskf.state().bw_ = mean_gyr_;
-        eskf.state().rot_ = Mat3D::Identity();
-        eskf.cov() = 0.000001 * StateCov::Identity();
-        eskf.initProcessCovQ();
-        return;
+        if (N_ > 0) acc_norm_ = mean_acc_.norm();
+        return added;
     }
+};
+
+class StateInitialByLidar : public StateInitial {
+   public:
+    using StateInitial::StateInitial;
+    size_t ingest(const common::MeasGroup& meas) override {
+        (void)meas;
+        N_ = std::max(N_, static_cast<int>(cfg_.min_samples));
+        acc_norm_ = cfg_.gravity;
+        return 0;
+    }
+    double accNorm() const override { return cfg_.gravity; }
+    Eigen::Vector3d gravityVec() const override { return Eigen::Vector3d::Zero(); }
+    Eigen::Vector3d gyroBias() const override { return Eigen::Vector3d::Zero(); }
+    Eigen::Matrix3d initRotation() const override { return Eigen::Matrix3d::Identity(); }
 };
 
 class StateInitialByKinImu : public StateInitial {
    public:
-    explicit StateInitialByKinImu(double G_m_s2) : StateInitial(G_m_s2) {}
-
-    void processing(MeasGroup& measure, ESKF& eskf) override {
-        Vec3D cur_acc;
-        Vec3D cur_gyr;
-
-        if (b_first_frame_) {
-            b_first_frame_ = false;
-            N = 1;
-            const auto& imu_acc = measure.kin_imus_.front().acc_;
-            const auto& imu_gyr = measure.kin_imus_.front().gyr_;
-            mean_acc_ << imu_acc[0], imu_acc[1], imu_acc[2];
-            mean_gyr_ << imu_gyr[0], imu_gyr[1], imu_gyr[2];
-            cov_acc_.setZero();
-            cov_gyr_.setZero();
+    using StateInitial::StateInitial;
+    size_t ingest(const common::MeasGroup& meas) override {
+        size_t added = 0;
+        for (const auto& ki : meas.kin_imus_) {
+            const Eigen::Vector3d acc(ki.acc_[0], ki.acc_[1], ki.acc_[2]);
+            const Eigen::Vector3d gyr(ki.gyr_[0], ki.gyr_[1], ki.gyr_[2]);
+            updateMean(acc, gyr);
+            ++added;
         }
-
-        for (const auto& kin_imu : measure.kin_imus_) {
-            const auto& imu_acc = kin_imu.acc_;
-            const auto& imu_gyr = kin_imu.gyr_;
-            cur_acc << imu_acc[0], imu_acc[1], imu_acc[2];
-            cur_gyr << imu_gyr[0], imu_gyr[1], imu_gyr[2];
-
-            mean_acc_ += (cur_acc - mean_acc_) / N;
-            mean_gyr_ += (cur_gyr - mean_gyr_) / N;
-
-            cov_acc_ = cov_acc_ * (N - 1.0) / N +
-                       (cur_acc - mean_acc_).cwiseProduct(cur_acc - mean_acc_) * (N - 1.0) / (N * N);
-            cov_gyr_ = cov_gyr_ * (N - 1.0) / N +
-                       (cur_gyr - mean_gyr_).cwiseProduct(cur_gyr - mean_gyr_) * (N - 1.0) / (N * N);
-
-            N++;
-        }
-        acc_norm_ = mean_acc_.norm();
-        eskf.state().grav_ = -mean_acc_ / acc_norm_ * G_m_s2_;
-        eskf.state().bw_ = mean_gyr_;
-        eskf.state().rot_ = Mat3D::Identity();
-        eskf.cov() = 0.000001 * StateCov::Identity();
-        eskf.initProcessCovQ();
-        return;
+        if (N_ > 0) acc_norm_ = mean_acc_.norm();
+        return added;
     }
 };
 

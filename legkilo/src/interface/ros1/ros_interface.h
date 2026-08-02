@@ -1,34 +1,35 @@
+// SPDX-License-Identifier: MIT
+// @file ros_interface.h
+// @brief ROS1 publishers/subscribers and data flow glue.
+// @author Ou Guangjun
+// @created 2024-12-17
+// @maintainer ouguangjun98@gmail.com
 #ifndef LEG_KILO_ROS_INTERFACE_H
 #define LEG_KILO_ROS_INTERFACE_H
 
+#include <atomic>
 #include <deque>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 
-#include "common/eigen_types.hpp"
-#include "common/pcd_saver.hpp"
+#include "common/math_utils.hpp"
 #include "common/pcl_types.h"
 #include "common/sensor_types.hpp"
-#include "common/trajectory_saver.hpp"
-#include "interface/ros1/options.h"
+#include "interface/common/options.h"
+#include "interface/common/ros_compat.h"
 
-#include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Odometry.h>
-#include <nav_msgs/Path.h>
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/JointState.h>
-#include <sensor_msgs/PointCloud2.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
-#include <unitree_legged_msgs/HighState.h>
 
 namespace legkilo {
 class Kinematics;
 class LidarProcessing;
 class KILO;
+class Backend;
+class ViewerSlamInterface;
 }  // namespace legkilo
 
 namespace legkilo {
@@ -38,11 +39,15 @@ class RosInterface {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     RosInterface() = delete;
-    RosInterface(ros::NodeHandle& nh);
+    RosInterface(ros::NodeHandle& nh, ViewerSlamInterface* viewer_interface);
     ~RosInterface();
 
-    void rosInit(const std::string& config_file);
+    void init(const std::string& config_file);
     void run();
+    void stopSlam();
+    void stop();
+
+    bool isSlamStopped() const { return slam_stopped_.load(std::memory_order_acquire); }
 
    private:
     bool initParamAndReset(const std::string& config_file);
@@ -52,14 +57,13 @@ class RosInterface {
     void lidarLoop();
     void imuLoop();
     void kinematicImuLoop();
-    void lidarCallBack(const sensor_msgs::PointCloud2::ConstPtr& msg);
-    void imuCallBack(const sensor_msgs::Imu::ConstPtr& msg);
-    void kinematicImuCallBack(const unitree_legged_msgs::HighState::ConstPtr& msg);
+    void lidarCallBack(const ros_compat::PointCloud2MsgConstPtr& msg);
+    void livoxLidarCallBack(const ros_compat::LivoxCustomMsgConstPtr& msg);
+    void imuCallBack(const ros_compat::ImuMsgConstPtr& msg);
+    void kinematicImuCallBack(const ros_compat::HighStateMsgConstPtr& msg);
     bool syncPackage();
-    void runReset();
-    void publishOdomTFPath(double end_time);
-    void publishPointcloudWorld(double end_time);
-    void publishPointcloudBody(double end_time);  // without undistort
+    void publishOdomTFPath(double end_time, const Eigen::Vector3d& pos, const Eigen::Matrix3d& rot);
+    void publishPointcloudWorld(double end_time, const CloudPtr& cloud_world);
 
     ros::NodeHandle& nh_;
 
@@ -75,14 +79,6 @@ class RosInterface {
     ros::Publisher pub_odom_world_;
     ros::Publisher pub_joint_state_;
 
-    nav_msgs::Odometry odom_world_;
-    nav_msgs::Path path_world_;
-    tf::TransformBroadcaster br_;
-    tf::Transform transform_;
-    tf::Quaternion q_tf_;
-    Eigen::Quaterniond q_eigen_;
-    geometry_msgs::PoseStamped pose_path_;
-
     // sub thread
     std::unique_ptr<std::thread> lidar_thread_;
     std::unique_ptr<std::thread> imu_thread_;
@@ -92,12 +88,12 @@ class RosInterface {
     std::unique_ptr<LidarProcessing> lidar_processing_;
     std::unique_ptr<Kinematics> kinematics_;
     std::unique_ptr<KILO> kilo_;
-    std::unique_ptr<TrajectorySaver> traj_saver_;
-    std::unique_ptr<PcdSaver> pcd_saver_;
+    std::unique_ptr<Backend> backend_;
+    ViewerSlamInterface* viewer_interface_ = nullptr;
 
-    // meaure
+    // measure
     std::deque<common::LidarScan> lidar_cache_;
-    std::deque<sensor_msgs::Imu::Ptr> imu_cache_;
+    std::deque<ros_compat::ImuMsgPtr> imu_cache_;
     std::deque<common::KinImuMeas> kin_imu_cache_;
     common::MeasGroup measure_;
 
@@ -108,16 +104,9 @@ class RosInterface {
     double lidar_end_time_;
 
     // initialization
-    double init_time_ = 0.1;
     bool init_flag_ = true;
 
-    // pcl
-    CloudPtr cloud_raw_;
-    CloudPtr cloud_down_body_;
-    CloudPtr cloud_down_world_;
-
-    // LOG
-    size_t success_pts_size = 0;
+    std::atomic_bool slam_stopped_{false};
 
     // vis
     bool pub_joint_tf_enable_ = true;

@@ -1,9 +1,13 @@
 .vscode
+.codex
 AGENTS.md
+FEATURE.md
+log/
 
+legkilo/result/*
 legkilo/result/traj/*
 !legkilo/result/traj/.gitignore
 legkilo/result/PCD/*
 !legkilo/result/PCD/.gitignore
-legkilo/thirdparty/*
-!legkilo/thirdparty/oneapi-tbb-2022.2.0-lin.tgz
+legkilo/thirdparty/oneapi-tbb-2022.2.0-lin
+legkilo/script/*

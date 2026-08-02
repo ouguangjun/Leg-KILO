@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: MIT
+// @file kinematics.h
+// @brief Quadruped kinematics and contact detection.
+// @author Ou Guangjun
+// @created 2025-04-26
+// @maintainer ouguangjun98@gmail.com
 #ifndef LEG_KILO_KINEMATICS_H
 #define LEG_KILO_KINEMATICS_H
 
 #include "common/sensor_types.hpp"
-
-#include <unitree_legged_msgs/HighState.h>
+#include "interface/common/ros_compat.h"
 
 namespace legkilo {
 
@@ -43,7 +48,7 @@ class Kinematics {
           contacts_(std::vector<ContactDetector>(
               4, ContactDetector(config.contact_force_threshold_up, config.contact_force_threshold_down))) {}
 
-    void processing(const unitree_legged_msgs::HighState& high_state, common::KinImuMeas& kin_imu_meas);
+    void processing(const ros_compat::HighStateMsg& high_state, common::KinImuMeas& kin_imu_meas);
 
    private:
     void caculateFootPosVel(const double (&foot_angle)[4][3], const double (&foot_angle_vel)[4][3],

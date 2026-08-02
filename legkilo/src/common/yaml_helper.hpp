@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: MIT
+// @file yaml_helper.hpp
+// @brief Safe YAML getters with logging and defaults.
+// @author Ou Guangjun
+// @created 2024-12-17
+// @maintainer ouguangjun98@gmail.com
 #ifndef LEG_KILO_YAML_HELPER_H
 #define LEG_KILO_YAML_HELPER_H
 
@@ -5,20 +11,32 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[";
-    for (size_t i = 0; i < vec.size(); ++i) {
-        os << vec[i];
-        if (i != vec.size() - 1) os << ", ";
-    }
-    os << "]";
-    return os;
-}
+#include <vector>
 
 namespace legkilo {
+
+template <typename T>
+inline std::string toLogString(const T& v) {
+    std::ostringstream ss;
+    ss << v;
+    return ss.str();
+}
+
+inline std::string toLogString(bool v) { return v ? "true" : "false"; }
+
+template <typename T>
+inline std::string toLogString(const std::vector<T>& vec) {
+    std::ostringstream ss;
+    ss << "[";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        ss << toLogString(vec[i]);
+        if (i != vec.size() - 1) ss << ", ";
+    }
+    ss << "]";
+    return ss.str();
+}
 
 class YamlHelper {
    public:
@@ -43,7 +61,7 @@ class YamlHelper {
         }
         try {
             T ret = yaml_node_[key].as<T>();
-            LOG(INFO) << "YAML Key:  " << key << " = " << ret;
+            LOG(INFO) << "YAML Key:  " << key << " = " << toLogString(ret);
             return ret;
         } catch (const std::exception& e) {
             LOG(ERROR) << "Failed to convert key " << key << "Errors: " << e.what();
@@ -54,15 +72,15 @@ class YamlHelper {
     template <typename T>
     T get(const std::string& key, const T& default_value) const {
         if (!hasKey(key)) {
-            LOG(WARNING) << "Key not found: " << key << ", returning default: " << default_value;
+            LOG(WARNING) << "Key not found: " << key << ", returning default: " << toLogString(default_value);
             return default_value;
         }
         try {
             T ret = yaml_node_[key].as<T>();
-            LOG(INFO) << "YAML Key: " << key << " = " << ret;
+            LOG(INFO) << "YAML Key: " << key << " = " << toLogString(ret);
             return ret;
         } catch (const std::exception& e) {
-            LOG(WARNING) << "Failed to convert key " << key << ", returning default: " << default_value
+            LOG(WARNING) << "Failed to convert key " << key << ", returning default: " << toLogString(default_value)
                          << ". Error: " << e.what();
             return default_value;
         }

@@ -1,4 +1,10 @@
-﻿#ifndef LEG_KILO_TRAJECTORY_SAVER_HPP
+﻿// SPDX-License-Identifier: MIT
+// @file trajectory_saver.hpp
+// @brief TUM trajectory writer (timestamp, pose quaternion).
+// @author Ou Guangjun
+// @created 2025-09-11
+// @maintainer ouguangjun98@gmail.com
+#ifndef LEG_KILO_TRAJECTORY_SAVER_HPP
 #define LEG_KILO_TRAJECTORY_SAVER_HPP
 
 #include <chrono>
@@ -13,7 +19,7 @@
 #include <glog/logging.h>
 #include <boost/filesystem.hpp>
 
-#include "common/eigen_types.hpp"
+#include "common/math_utils.hpp"
 
 namespace legkilo {
 

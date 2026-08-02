@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<package format="3">
+  <name>livox_ros_driver2</name>
+  <version>1.0.0</version>
+  <description>Livox ROS driver message definitions used for rosbag compatibility.</description>
+  <maintainer email="dev@livoxtech.com">Livox Dev Team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">rosidl_default_generators</buildtool_depend>
+
+  <build_depend condition="$ROS_VERSION == 1">message_generation</build_depend>
+  <exec_depend condition="$ROS_VERSION == 1">message_runtime</exec_depend>
+
+  <depend>std_msgs</depend>
+
+  <exec_depend condition="$ROS_VERSION == 2">rosidl_default_runtime</exec_depend>
+  <member_of_group condition="$ROS_VERSION == 2">rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+  </export>
+</package>
+

@@ -1,6 +1,13 @@
-﻿#ifndef LEG_KILO_PCD_SAVER_HPP
+﻿// SPDX-License-Identifier: MIT
+// @file pcd_saver.hpp
+// @brief Background PCD saver with batching and compression.
+// @author Ou Guangjun
+// @created 2025-09-12
+// @maintainer ouguangjun98@gmail.com
+#ifndef LEG_KILO_PCD_SAVER_HPP
 #define LEG_KILO_PCD_SAVER_HPP
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <ctime>
@@ -37,10 +44,7 @@ class PcdSaver {
     }
 
     ~PcdSaver() {
-        {
-            std::lock_guard<std::mutex> lk(mutex_);
-            stopping_ = true;
-        }
+        stopping_.store(true, std::memory_order_release);
         cv_.notify_one();
         if (worker_.joinable()) worker_.join();
     }
@@ -58,10 +62,10 @@ class PcdSaver {
    private:
     void initSessionDir() {
         const std::string base = std::string(ROOT_DIR) + "result/PCD/";
-        ensureDir(base);
+        this->ensureDir(base);
         const std::string stamp = nowString();
         session_dir_ = (fs::path(base) / stamp).string();
-        ensureDir(session_dir_);
+        this->ensureDir(session_dir_);
         LOG(INFO) << "PCD session dir: " << session_dir_;
     }
 
@@ -93,7 +97,7 @@ class PcdSaver {
             std::deque<CloudConstPtr> local_queue;
             {
                 std::unique_lock<std::mutex> lk(mutex_);
-                cv_.wait(lk, [&] { return stopping_ || !queue_.empty(); });
+                cv_.wait(lk, [&] { return stopping_.load(std::memory_order_acquire) || !queue_.empty(); });
                 local_queue.swap(queue_);
             }
 
@@ -101,11 +105,11 @@ class PcdSaver {
                 if (!cloud || cloud->empty()) continue;
                 *buffer_ += *cloud;
                 ++frames_in_buffer_;
-                if (frames_in_buffer_ >= frames_per_file_) { downsampleAndSave(); }
+                if (frames_in_buffer_ >= frames_per_file_) { this->downsampleAndSave(); }
             }
 
-            if (stopping_) {
-                if (buffer_ && !buffer_->empty()) { downsampleAndSave(); }
+            if (stopping_.load(std::memory_order_acquire)) {
+                if (buffer_ && !buffer_->empty()) { this->downsampleAndSave(); }
                 break;
             }
         }
@@ -147,7 +151,7 @@ class PcdSaver {
     std::mutex mutex_;
     std::condition_variable cv_;
     std::deque<CloudConstPtr> queue_;
-    bool stopping_ = false;
+    std::atomic<bool> stopping_{false};
 };
 
 }  // namespace legkilo

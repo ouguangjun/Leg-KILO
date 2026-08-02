@@ -1,0 +1,69 @@
+# Topics
+lidar_topic: /velodyne_points    ## Lidar topic
+imu_topic: /go2_imu_sensor       ## IMU topic
+
+# Sensor Mode
+sensor_type: LIO                 ## LO: lidar only, LIO: lidar + imu, KILO: lidar + kinematics + imu (LO mode has not been tested and is not recommended for use)
+
+# Initialization (Require stationary state at the beginning)
+gravity: 9.81 
+init_type: 2                     ## 1: Identity (R=I, g from mean acc); 2: GravityAlignment (R aligns acc to world gravity, g=[0,0,-G])
+
+# Extrinsic: rigid body transform from LiDAR frame to IMU frame (T_I_L)
+# meaning: LiDAR coordinate system expressed in IMU coordinate system
+extrinsic_T: [ 0.171, 0.0 , 0.0908] 
+extrinsic_R: [ 0, -1, 0, 
+               1, 0, 0, 
+               0, 0, 1]
+
+# Lidar Common
+lidar_type: 1                    ## Velodyne: 1, Ouster: 2, Pandar: 3, KITTI: 4, Livox: 5
+time_scale: 1                    ## point sampling time scale relative to [sec] (e.g., 1 for sec, 1e-3 for msec, 1e-6 for usec, 1e-9 for nsec/Livox)
+min_range: 1.0                   ## min range for valid points [m]
+max_range: 150.0                 ## max range for valid points [m]
+filter_num: 1                    ## number of points to filter
+voxel_grid_resolution: 0.5       ## voxel grid resolution for point cloud downsampling [m]
+voxel_grid_mode: 1               ## 0: MedianRepresentative, 1: RandomPerVoxelQuota (detail in the comment of common/voxel_grid.h)
+voxel_grid_target_num: 3000      ## target number of points after voxel grid downsampling (only for RandomPerVoxelQuota)
+voxel_grid_overshoot: 1.5        ## overshoot factor for RandomPerVoxelQuota ( the points num exceed overshoot * target_num will be resized)
+
+# Voxel Map
+ndt_enable: true                 ## enable ndt residual
+p2plane_enable: true             ## enable point-to-plane residual
+voxel_size: 0.5                  ## [m] resolution of voxel
+beam_err: 0.1                    ## angular error of lidar beam
+dept_err: 0.04                   ## depth measurement error of lidar beam
+voxel_max_num: 50                ## max number of points in each voxel
+planar_ratio: 0.1                ## the ratio of the smallest eigenvalue for plane detection
+planar_thickness: 0.1            ## [m] the thickness of plane for plane detection
+nearby_type: 0                   ## knn search range:  0: center voxel; 1: nearby 7 voxels; 2: nearby 27 voxels
+capacity: 300000                 ## max number of voxels in voxel map
+ndt_min_points: 5                ## minimum number of points in voxel for ndt residual
+
+# backend
+kf_trans_threshold: 0.3          ## [m] max translation difference for keyframe selection
+kf_degree_threshold: 10.0        ## [deg] max rotation difference for keyframe selection
+kf_max_num_submap: 20            ## max number of submaps to maintain
+kf_max_dist_submap: 5.0          ## [m] max distance between the begin frame and end frame of a submap
+
+# Loop closure
+loop_closure_enable: true        ## enable/disable loop closure backend
+loop_search_radius: 10.0         ## [m] search radius for candidate detection
+loop_min_id_separation: 50       ## minimum ID gap between candidate submaps
+loop_icp_max_corr_dist: 2.0      ## [m] max correspondence distance for SMALL-ICP
+loop_icp_max_iterations: 20      ## max SMALL-ICP iterations
+loop_icp_fitness_threshold: 0.7  ## minimum source inlier ratio for ICP verification
+loop_verify_max_attempts: 1      ## max verification attempts per candidate
+loop_kiss_matcher_enabled: false ## whether use KISS-Matcher for loop verification
+loop_kiss_refine_min_id_gap: 100 ## minimum ID gap before KISS refinement
+loop_kiss_inliers_threshold: 40  ## minimum KISS-Matcher inliers for loop acceptance
+loop_kiss_use_quatro: true       ## if ground robotic dataset, it is recommended to set true for better performance
+
+# Eskf cov/noise
+enable_second_step_eskf: true    ## whether use two-step ESKF for lidar update (first step: point by point update, second step: Backpropagate + full points ieskf update)
+ieskf_max_iterations: 3          ## max iterations for iterated ESKF in lidar update (only for two-step lidar eskf)
+
+imu_acc_meas_noise: 0.1          ## accelerometer measurement noise
+imu_gyr_meas_noise: 0.01         ## gyroscope measurement noise
+p2plane_kernel_threshold: 5.0    ## point-to-plane kernel threshold
+ndt_kernel_threshold: 5.0        ## NDT kernel threshold

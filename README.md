@@ -12,114 +12,119 @@
   <a href="https://space.bilibili.com/82127930/lists?sid=6240305&spm_id_from=333.788.0.0">
     <img src="https://img.shields.io/badge/Video-Bilibili-brightgreen" alt="Bilibili Video" />
   </a>
-  <!-- 论文 -->
-  <a href="https://ieeexplore.ieee.org/document/10631676">
-    <img src="https://img.shields.io/badge/Paper-LegKILO1.0-brightgreen" alt="LegKILO 1.0 Paper" />
+  <!-- ROS1 -->
+  <img src="https://img.shields.io/badge/build-ROS1-blue" alt="ROS1 Build" />
+  <!-- ROS2 -->
+  <img src="https://img.shields.io/badge/build-ROS2-blue" alt="ROS2 Build" />
+  <!-- License -->
+  <img src="https://img.shields.io/badge/MIT_License-green?style=flat-square" alt="License" />
+  <a href="./README_CN.md">
+    <img src="https://img.shields.io/badge/简体中文-red?style=flat-square" alt="Bilibili Video" />
   </a>
 </p>
 
+<p align="center">
+  <img src="./doc/fig/mars-lvig-island.png" alt="kilo-map" width="100%" />
+</p>
 
+kilo-map is a real-time LiDAR-based SLAM system with the following features:
 
+- **Hybrid Feature Gaussian Voxel Map**: Incrementally maintains uncertain hybrid features (planar and NDT-variant), improving feature utilization across both structured and unstructured environments.
 
-Leg-KILO 2.0 is a kinematic–inertial–LiDAR tightly‑coupled error‑state Kalman filter odometry system. Both the methodology and implementation differ from the original paper. The new version of Leg‑KILO is more efficient and lightweight. Key features include:
+- **Two-Stage ESKF Frontend**: Fuses LiDAR and IMU in an Error-State Kalman Filter with a **two-stage lidar update** for high-dynamic motion: **Stage 1** performs incremental per-point ESKF updates along the scan timeline to compensate for motion distortion (analogous to Point-LIO); **Stage 2** backpropagates the distortion-corrected points to body frame and runs iterated ESKF (IESKF) over the full frame for global consistency refinement. This design makes the system robust against aggressive platform dynamics (e.g., legged robots) while preserving IESKF's fast convergence property.
 
-- **Tight Sensor Fusion via ESKF**  
-  All sensors (**LiDAR**, **IMU**, and **optional leg kinematics**) are fused in a single Error‑State Kalman Filter.
+- **Factor Graph Backend**: Uses Ceres-based factor graph optimization to tightly couple loop-closure constraints with odometry factors, reducing global drift. [small_gicp](https://github.com/koide3/small_gicp) and [KISS-Matcher](https://github.com/MIT-SPARK/KISS-Matcher) serve as verification modules for loop closure, improving matching accuracy.
 
-- **Per-Point LiDAR Observations & IMU as Model Observation**  
-  Each LiDAR point is treated as an independent observation, and the IMU is used as a model observation—inspired by [Point‑LIO](https://github.com/hku-mars/Point-LIO). This makes the system more robust during high dynamic motion.
+- **Real-Time Visualization**: Built on [Iridescence](https://github.com/koide3/iridescence) for real-time 3D visualization and debugging. Outputs frontend and backend trajectories for algorithm evaluation, and supports saving global maps (as a single map or tiled blocks) for localization systems.
 
-- **Voxel Map Management**  
-  A voxel‑based map (based on [FAST‑LIVO2](https://github.com/hku-mars/FAST-LIVO2)) is used to organize and manage LiDAR map.
-
-- **High Throughput**  
-  Thanks to the ESKF and voxel map structure, single‑frame processing runs in **5–20 ms** .
-
-- **Extensive Validation**  
-  Tested on both self‑collected and public datasets, and validated on ***Unitree Go1*** and ***Go2*** robots(with more datasets under continuous testing). 
+- **Cross-Platform Support**: Supports both ROS 1 and ROS 2, validated on multiple public datasets with different LiDAR sensors. Most configurations share the same YAML structure and require little to no parameter tuning across different platforms and sensor setups.
 
 <p align="center">
-  <img src="./doc/fig/map_dog.jpg" alt="Image 1" width="45%" />
-  <img src="./doc/fig/dog_urdf_vis.jpg" alt="Image 2" width="43%" />
+  <img src="./doc/fig/backpack.png" alt="Image 1" width="48%" />
+  <img src="./doc/fig/superloc.png" alt="Image 2" width="48%" />
+  <img src="./doc/fig/nclt2.png" alt="Image 1" width="48%" />
+  <img src="./doc/fig/diter.png" alt="Image 2" width="48%" />
 </p>
 
 
-# News
-- **`2024.07.20`:** The paper is accepted by RA-L 2024!
-- **`2024.07.31`:** The code is released.
-- **`2025.07.20`:** Leg-KILO 2.0 is released.
-
 # Prerequisites
 
-Does not include any external optimization libraries; only requires common SLAM libraries such as Eigen and PCL.
+This project supports both **ROS 1**  and **ROS 2**, and has been tested on these distributions(***melodic***, ***noetic***, ***foxy***). It should also work with ROS 2 distributions on Ubuntu 22.04 and 24.04 (e.g., ***Humble***, ***Jazzy***).
 
-Currently our code is tested on 
-
-- Ubuntu 18.04
-- ROS melodic
-- pcl 1.8
-- eigen 3
-- [unitree_legged_msgs](https://github.com/unitreerobotics/unitree_ros_to_real) (has included in the project)
-- glog
-- yaml-cpp
+All third-party libraries and ROS message packages are bundled in this repository. You only need to install the following system dependencies via apt:
 
 ```bash
-sudo apt update && sudo apt install -y libpcl-dev libeigen3-dev libgoogle-glog-dev libyaml-cpp-dev
+# required
+sudo apt update && sudo apt install -y libeigen3-dev libpcl-dev libgoogle-glog-dev libgflags-dev libyaml-cpp-dev libboost-filesystem-dev libboost-system-dev libtbb-dev liblz4-dev libceres-dev libglm-dev libglfw3-dev
+
+# optional
+sudo apt install -y libpng-dev libjpeg-dev libassimp-dev
 ```
+
+
 
 # Build
 
 ```bash
-cd ~/legkilo_ws/src
-git clone https://github.com/ouguangjun/Leg-KILO.git
+cd ~/kilo_map_ws/src
+git clone https://github.com/ouguangjun/kilo-map.git
 cd ..
-catkin build  # catkin_make
+
+# ros1
+catkin_make # or catkin build
+
+# ros2
+colcon build
 ```
 
 # Run
 
-## Leg-KILO Dataset
-Download our dataset from [link](https://github.com/ouguangjun/legkilo-dataset)
+## Public dataset
+
+The system has been validated on NCLT, SuperLoc, m3dgr, diter and other public datasets. You can download these datasets and test with the corresponding launch files (make sure to match the LiDAR type, topic, and extrinsic parameters in the YAML config).
+
+Taking the legged robot [legkilo dataset](https://github.com/ouguangjun/legkilo-dataset) as an example:
 
 ```bash
+# ROS 1
 source devel/setup.bash
-roslaunch legkilo leg_fusion.launch
-rosbag play xxxx.bag
+roslaunch legkilo legkilo_go1_velodyne.launch
+rosbag play slope.bag
+
+# ROS 2
+source install/setup.bash
+ros2 launch legkilo legkilo_go1_velodyne.py
+# use rosbags-convert to convert ROS 1 bag to ROS 2 format
+ros2 bag play ./slope_ros2
 ```
 
-## Diter++ Dataset
+## Custom Dataset
 
-Download [Diter++](https://www.google.com/url?q=https%3A%2F%2Fconstruction-robots.github.io%2Fpapers%2F66.pdf&sa=D&sntz=1&usg=AOvVaw2WSdHVs-7_zznSH2CZIeWH) dataset from [link](https://sites.google.com/view/diter-plusplus/home)
+To run with your own dataset, make sure the following YAML parameters are correctly configured:
 
-```bash
-source devel/setup.bash
-roslaunch legkilo diter.launch
-rosbag play lawn_go2_lower_day.bag
-```
+1. **`lidar_topic`** / **`imu_topic`**: ROS topic names for the LiDAR and IMU data.
+2. **`lidar_type`**: The LiDAR model. Currently supported: `velodyne`, `ouster`, `hesai`, `livox`. To add a new type, refer to `legkilo/src/preprocess/lidar_processing.h`.
+3. **`time_scale`**: The scale factor to convert each LiDAR point's raw timestamp to seconds (e.g., `1e-9` for nanosecond timestamps, `1e-6` for microseconds). This varies across LiDAR models and even across different driver configurations for the same sensor.
+4. **`sensor_type`**: The fusion mode. Use `LIO` for typical LiDAR-IMU setups.
+5. **`extrinsic_T`** / **`extrinsic_R`**: The translation vector and rotation matrix of the IMU-to-LiDAR extrinsic transformation.
+6. For best results, start mapping from a stationary state to allow the system to initialize IMU biases and the initial pose. Setting `init_type` to `2` enables gravity-aligned initialization.
 
-## NCLT Dataset
-```bash
-source devel/setup.bash
-roslaunch legkilo nclt.launch
-rosbag play xxxx.bag
-```
+# Save Map
+<p align="center">
+  <img src="./doc/fig/save.png" alt="Image 2" width="42%" />
+  <img src="./doc/fig/tiled.png" alt="Image 1" width="48%" />
+</p>
 
+After the run completes, you can save the global map and trajectory via the **`Save Result`** button in the upper-left corner of the viewer.
 
-# Acknowledgments
+# Related Publications
 
-Thanks for their excellent open source work:
+This project originated from the following paper, but has been substantially refactored and redesigned over time. It is no longer a direct implementation of the original work.
 
-- [Point‑LIO](https://github.com/hku-mars/Point-LIO)
-- [FAST‑LIVO2](https://github.com/hku-mars/FAST-LIVO2)
-- [FASTER-LIO](https://github.com/gaoxiang12/faster-lio)
-- [SAD](https://github.com/gaoxiang12/slam_in_autonomous_driving)
-- [SVO](https://github.com/uzh-rpg/rpg_svo_pro_open)
-- [A1-QP-MPC-Controller](https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller).
+<details>
+<summary>Leg-KILO (RA-L 2024)</summary>
 
-# Citation
-If you found this code/work to be useful in your own research, please considering citing the following information.
-
-```
+```bibtex
 @ARTICLE{legkilo,
   author={Ou, Guangjun and Li, Dong and Li, Hanmin},
   journal={IEEE Robotics and Automation Letters}, 
@@ -128,13 +133,40 @@ If you found this code/work to be useful in your own research, please considerin
   volume={9},
   number={10},
   pages={8194-8201},
-  doi={10.1109/LRA.2024.3440730}}
+  doi={10.1109/LRA.2024.3440730}
+}
 ```
+</details>
 
 # Contact
+
 If you have questions, make an issue or contact me at [ouguangjun98@gmail.com](ouguangjun98@gmail.com) 
 
-# Star History
-<a href="https://www.star-history.com/#ouguangjun/Leg-KILO&Date">
-  <img src="https://api.star-history.com/svg?repos=ouguangjun/Leg-KILO&type=Date" width="600" alt="Star History Chart"/>
+If you have ideas or suggestions for improvement, feel free to submit a PR or reach out!
+
+# Maintainers
+
+<a href="https://github.com/ouguangjun">
+  <img src="https://github.com/ouguangjun.png" width="40" style="border-radius:30%" />
 </a>
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+# Acknowledgments
+
+We gratefully acknowledge the following open-source projects:
+
+- [Iridescence](https://github.com/koide3/iridescence) — real-time 3D visualization
+- [small_gicp](https://github.com/koide3/small_gicp) — point cloud registration for loop-closure verification
+- [KISS-Matcher](https://github.com/MIT-SPARK/KISS-Matcher) — point cloud registration for loop-closure verification
+
+- [HKU-MaRS Lab](https://github.com/hku-mars) — for inspiration from their outstanding publications
+- [Xiang Gao](https://github.com/gaoxiang12) — for his excellent open-source projects
+
+
+# 免责声明
+
+本项目为个人学习项目，出于兴趣分享，学术上不必过度细究😄
+

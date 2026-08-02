@@ -2,8 +2,8 @@
 
 namespace legkilo {
 
-void Kinematics::processing(const unitree_legged_msgs::HighState& high_state, common::KinImuMeas& kin_imu_meas) {
-    kin_imu_meas.time_stamp_ = high_state.stamp.toSec();
+void Kinematics::processing(const ros_compat::HighStateMsg& high_state, common::KinImuMeas& kin_imu_meas) {
+    kin_imu_meas.time_stamp_ = ros_compat::toSec(high_state.stamp);
 
     for (int i = 0; i < 3; ++i) {
         kin_imu_meas.acc_[i] = high_state.imu.accelerometer[i];
@@ -14,22 +14,24 @@ void Kinematics::processing(const unitree_legged_msgs::HighState& high_state, co
         this project leg order: FR FL RR RL
         unitree leg order: FL FR RL RR
     */
-    kin_imu_meas.contact_[0] = contacts_[0].update(high_state.footForce[1]);
-    kin_imu_meas.contact_[1] = contacts_[1].update(high_state.footForce[0]);
-    kin_imu_meas.contact_[2] = contacts_[2].update(high_state.footForce[3]);
-    kin_imu_meas.contact_[3] = contacts_[3].update(high_state.footForce[2]);
+    const auto& foot_force = ros_compat::footForces(high_state);
+    const auto& motor_state = ros_compat::motorStates(high_state);
+    kin_imu_meas.contact_[0] = contacts_[0].update(foot_force[1]);
+    kin_imu_meas.contact_[1] = contacts_[1].update(foot_force[0]);
+    kin_imu_meas.contact_[2] = contacts_[2].update(foot_force[3]);
+    kin_imu_meas.contact_[3] = contacts_[3].update(foot_force[2]);
 
     double foot_angle[4][3];
     double foot_angle_vel[4][3];
     for (int i = 0; i < 3; ++i) {
-        foot_angle[0][i] = high_state.motorState[3 + i].q;
-        foot_angle_vel[0][i] = high_state.motorState[3 + i].dq;
-        foot_angle[1][i] = high_state.motorState[0 + i].q;
-        foot_angle_vel[1][i] = high_state.motorState[0 + i].dq;
-        foot_angle[2][i] = high_state.motorState[9 + i].q;
-        foot_angle_vel[2][i] = high_state.motorState[9 + i].dq;
-        foot_angle[3][i] = high_state.motorState[6 + i].q;
-        foot_angle_vel[3][i] = high_state.motorState[6 + i].dq;
+        foot_angle[0][i] = motor_state[3 + i].q;
+        foot_angle_vel[0][i] = motor_state[3 + i].dq;
+        foot_angle[1][i] = motor_state[0 + i].q;
+        foot_angle_vel[1][i] = motor_state[0 + i].dq;
+        foot_angle[2][i] = motor_state[9 + i].q;
+        foot_angle_vel[2][i] = motor_state[9 + i].dq;
+        foot_angle[3][i] = motor_state[6 + i].q;
+        foot_angle_vel[3][i] = motor_state[6 + i].dq;
     }
 
     this->caculateFootPosVel(foot_angle, foot_angle_vel, kin_imu_meas.foot_pos_, kin_imu_meas.foot_vel_);
