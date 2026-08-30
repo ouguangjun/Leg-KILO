@@ -82,7 +82,19 @@ colcon build
 
 ## Public dataset
 
-The system has been validated on NCLT, SuperLoc, m3dgr, diter and other public datasets. You can download these datasets and test with the corresponding launch files (make sure to match the LiDAR type, topic, and extrinsic parameters in the YAML config).
+The system has been validated on the following public datasets. Download a dataset and use its corresponding launch file (make sure the LiDAR type, topics, and extrinsic parameters in the YAML config match the data).
+
+| Dataset | Dataset link | LiDAR | Config file | Notes |
+| --- | --- | --- | --- | --- |
+| Leg-KILO | [Download](https://github.com/ouguangjun/legkilo-dataset) | Velodyne VLP-16 | `legkilo_go1_velodyne.yaml` | — |
+| NCLT | [Download](https://robots.engin.umich.edu/nclt/) | Velodyne HDL-32E | `nclt_velodyne.yaml` | — |
+| SuperLoc | [Download](https://superodometry.com/superloc.html) | Velodyne VLP series | `superloc_velodyne.yaml` | — |
+| M3DGR | [Download](https://github.com/sjtuyinjie/M3DGR) | Livox MID-360 | `m3dgr_mid360.yaml` | — |
+| DiTer++ | [Download](https://github.com/sparolab/DiTer-plusplus) | Ouster OS1 | `diter_go2_ouster.yaml` | — |
+| MARS-LVIG | [Download](https://mars.hku.hk/dataset.html) | Livox Avia | `mars_lvig_avia.yaml` | — |
+| NeBula | [Download](https://github.com/NeBula-Autonomy/nebula-odometry-dataset) | Velodyne VLP-16 | `nebula_velodyne.yaml` | — |
+| QuadSLAM | [Download](https://github.com/EN3D-Lab/Quadruped-SLAM-dataset) | Hesai XT16 (Velodyne format) | `quadruped_slam_velodyne.yaml` | — |
+| Backpack2025 | [Download](https://github.com/CNITECH-CV-LAB/Backpack2025) | Hesai (dual LiDAR) | `backpack_hesai.yaml` | — |
 
 Taking the legged robot [legkilo dataset](https://github.com/ouguangjun/legkilo-dataset) as an example:
 

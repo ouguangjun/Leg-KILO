@@ -74,7 +74,19 @@ colcon build
 
 ## Public Dataset
 
-本系统已在 NCLT、SuperLoc、m3dgr、diter 等公开数据集上完成验证。你可以下载相应数据集并使用对应的 launch 文件进行测试（需确保 YAML 配置中的激光雷达类型、话题及外参与数据集匹配）。
+本系统已在以下公开数据集上完成验证。下载数据集后，使用对应的 launch 文件即可运行（需确保 YAML 配置中的激光雷达类型、话题及外参与数据匹配）。
+
+| 数据集 | 数据集链接 | 激光雷达 | 配置文件 | 额外说明 |
+| --- | --- | --- | --- | --- |
+| Leg-KILO | [下载](https://github.com/ouguangjun/legkilo-dataset) | Velodyne VLP-16 | `legkilo_go1_velodyne.yaml` | — |
+| NCLT | [下载](https://robots.engin.umich.edu/nclt/) | Velodyne HDL-32E | `nclt_velodyne.yaml` | — |
+| SuperLoc | [下载](https://superodometry.com/superloc.html) | Velodyne VLP 系列 | `superloc_velodyne.yaml` | — |
+| M3DGR | [下载](https://github.com/sjtuyinjie/M3DGR) | Livox MID-360 | `m3dgr_mid360.yaml` | — |
+| DiTer++ | [下载](https://github.com/sparolab/DiTer-plusplus) | Ouster OS1 | `diter_go2_ouster.yaml` | — |
+| MARS-LVIG | [下载](https://mars.hku.hk/dataset.html) | Livox Avia | `mars_lvig_avia.yaml` | — |
+| NeBula | [下载](https://github.com/NeBula-Autonomy/nebula-odometry-dataset) | Velodyne VLP-16 | `nebula_velodyne.yaml` | — |
+| QuadSLAM | [下载](https://github.com/EN3D-Lab/Quadruped-SLAM-dataset) | Hesai XT16（Velodyne 格式） | `quadruped_slam_velodyne.yaml` | — |
+| Backpack2025 | [下载](https://github.com/CNITECH-CV-LAB/Backpack2025) | Hesai（双雷达） | `backpack_hesai.yaml` | — |
 
 以四足机器人 [legkilo dataset](https://github.com/ouguangjun/legkilo-dataset) 为例：
 
