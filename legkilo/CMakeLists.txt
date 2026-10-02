@@ -36,7 +36,7 @@ find_package(Ceres REQUIRED)
 
 # for ubuntu 18.04, please update gcc/g++ to 9, and then unzip oneapi-tbb-2022.2.0-lin in thirdparty folder,
 # then check TBB2018_INCLUDE_DIR is correct and set UBUNTU1804_TBB "ON"
-option(UBUNTU1804_TBB "use custom tbb package in ubuntu18.04" ON)
+option(UBUNTU1804_TBB "use custom tbb package in ubuntu18.04" OFF)
 if(UBUNTU1804_TBB)
     set(CUSTOM_TBB_DIR "${PROJECT_SOURCE_DIR}/thirdparty/oneapi-tbb-2022.2.0-lin/oneapi-tbb-2022.2.0")
     set(TBB2022_INCLUDE_DIR "${CUSTOM_TBB_DIR}/include")
