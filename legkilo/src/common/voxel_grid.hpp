@@ -56,6 +56,9 @@ class VoxelGrid {
             case SamplingMode::MedianRepresentative: filterMedian(cloud_in, cloud_out); break;
             case SamplingMode::RandomPerVoxelQuota: filterRandomPerVoxel(cloud_in, cloud_out); break;
         }
+
+        cloud_out->width = static_cast<uint32_t>(cloud_out->points.size());
+        cloud_out->height = 1;
     }
 
    private:
