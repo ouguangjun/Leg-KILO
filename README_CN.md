@@ -166,6 +166,7 @@ ros2 bag play ./slope_ros2
 - [Iridescence](https://github.com/koide3/iridescence) — 实时三维可视化
 - [small_gicp](https://github.com/koide3/small_gicp) — 点云配准，用于回环验证
 - [KISS-Matcher](https://github.com/MIT-SPARK/KISS-Matcher) — 点云配准，用于回环验证
+- [Sophus](https://github.com/strasdat/Sophus) — 李群 SO(3)/SE(3) 运算（指数映射与对数映射），MIT 许可
 
 - [HKU-MaRS Lab](https://github.com/hku-mars) — 诸多出色论文带来的启发
 - [Xiang Gao](https://github.com/gaoxiang12) — 优秀的开源项目

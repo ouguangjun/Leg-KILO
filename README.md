@@ -174,6 +174,7 @@ We gratefully acknowledge the following open-source projects:
 - [Iridescence](https://github.com/koide3/iridescence) — real-time 3D visualization
 - [small_gicp](https://github.com/koide3/small_gicp) — point cloud registration for loop-closure verification
 - [KISS-Matcher](https://github.com/MIT-SPARK/KISS-Matcher) — point cloud registration for loop-closure verification
+- [Sophus](https://github.com/strasdat/Sophus) — Lie group SO(3)/SE(3) math (exponential/log maps), MIT licensed
 
 - [HKU-MaRS Lab](https://github.com/hku-mars) — for inspiration from their outstanding publications
 - [Xiang Gao](https://github.com/gaoxiang12) — for his excellent open-source projects
